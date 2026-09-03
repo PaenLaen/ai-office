@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI Office 🏢</title>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#eef3fa; --card:#fff; --ink:#2f3d59; --muted:#8a95ad;
+  --line:#e3e8f2; --shadow:0 6px 20px rgba(90,110,160,.14);
+}
+body{font-family:'Mali',system-ui,sans-serif;background:var(--bg);color:var(--ink);
+  padding:14px;max-width:1240px;margin:0 auto;-webkit-text-size-adjust:100%}
+
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+h1{font-size:22px;font-weight:700;line-height:1.25}
+h1 span{font-size:13px;font-weight:400;color:var(--muted);display:block}
+.spacer{flex:1}
+button{font-family:inherit;font-size:14px;font-weight:600;border:none;cursor:pointer;
+  border-radius:12px;padding:10px 16px;transition:.15s;background:#fff;color:var(--ink);box-shadow:var(--shadow)}
+button:active{transform:scale(.96)}
+button.primary{background:linear-gradient(135deg,#5b8def,#8f6cff);color:#fff}
+button.danger{background:#ffe9e9;color:#d94848;box-shadow:none}
+.sync{font-size:12px;color:var(--muted);width:100%;display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:#c3cad9;flex-shrink:0}
+.dot.ok{background:#3ecf8e}.dot.err{background:#ff6b6b}
+.dot.load{background:#ffc44d;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+
+/* ---------- office ---------- */
+.office{position:relative;border-radius:22px;overflow:hidden;box-shadow:var(--shadow);
+  margin-bottom:22px;background:#4a7fb5 center/cover no-repeat;min-height:300px;
+  display:flex;align-items:flex-end}
+.office:after{content:'';position:absolute;left:0;right:0;bottom:0;height:42%;
+  background:linear-gradient(rgba(120,90,50,0),rgba(90,65,35,.28));pointer-events:none}
+
+.floorrow{position:relative;z-index:2;display:flex;gap:6px;width:100%;
+  padding:150px 14px 18px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.floorrow::-webkit-scrollbar{height:6px}
+.floorrow::-webkit-scrollbar-thumb{background:rgba(255,255,255,.55);border-radius:6px}
+
+.unit{flex:0 0 auto;width:140px;display:flex;flex-direction:column;align-items:center;
+  cursor:pointer;scroll-snap-align:center;position:relative}
+.unit:hover .rwrap{transform:translateY(-5px)}
+
+.bubble{background:rgba(255,255,255,.96);border-radius:13px;padding:5px 10px;font-size:11px;
+  font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.18);white-space:nowrap;position:relative;
+  margin-bottom:8px;max-width:136px;overflow:hidden;text-overflow:ellipsis}
+.bubble:after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:rgba(255,255,255,.96);border-bottom:0}
+
+.rwrap{position:relative;width:110px;transition:.2s}
+.rwrap img{width:100%;display:block;filter:drop-shadow(0 8px 10px rgba(40,50,80,.32))}
+.shadow{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);
+  width:76%;height:13px;border-radius:50%;background:rgba(60,45,25,.3);filter:blur(5px);z-index:-1}
+
+.badge{position:absolute;top:34%;right:2px;font-size:17px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));
+  display:none}
+.unit[data-s="quota"] .badge,.unit[data-s="rest"] .badge{display:block}
+
+.unit[data-s="busy"] .rwrap{animation:work 1.8s ease-in-out infinite}
+@keyframes work{50%{transform:translateY(-4px) rotate(1deg)}}
+.unit[data-s="quota"] .rwrap img{filter:grayscale(.85) brightness(.9) drop-shadow(0 8px 10px rgba(40,50,80,.28))}
+.unit[data-s="rest"] .rwrap img{filter:brightness(1.05) opacity(.62) drop-shadow(0 8px 10px rgba(40,50,80,.2))}
+.unit[data-s="free"] .rwrap{animation:idle 3.4s ease-in-out infinite}
+@keyframes idle{50%{transform:translateY(-2px)}}
+
+.plate{margin-top:6px;background:rgba(255,255,255,.94);border-radius:11px;padding:5px 10px;
+  box-shadow:0 4px 12px rgba(0,0,0,.16);text-align:center;max-width:136px}
+.pname{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;justify-content:center}
+.chip{width:11px;height:11px;border-radius:50%;background:var(--c);flex-shrink:0;
+  box-shadow:0 0 0 2px #fff,0 0 6px var(--c)}
+.prole{font-size:10px;color:var(--muted);line-height:1.35;margin-top:1px}
+
+/* ---------- cards ---------- */
+h2{font-size:16px;margin:0 0 12px 4px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:13px}
+.card{background:var(--card);border-radius:18px;padding:15px;box-shadow:var(--shadow);
+  border-left:6px solid var(--c)}
+.chead{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.thumb{width:40px;height:40px;border-radius:12px;background:#eef2fa;flex-shrink:0;
+  display:grid;place-items:center;overflow:hidden;position:relative}
+.thumb img{width:150%;margin-top:14%}
+.cdot{position:absolute;right:-2px;bottom:-2px;width:13px;height:13px;border-radius:50%;
+  background:var(--c);border:2.5px solid #fff}
+.cname{font-weight:700;font-size:15px;line-height:1.2}
+.crole{font-size:11px;color:var(--muted)}
+.pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.p-free{background:#e3f9ef;color:#1f9e6a}
+.p-busy{background:#fff5da;color:#b8860b}
+.p-quota{background:#ffe8e8;color:#d94848}
+.p-rest{background:#ecefff;color:#6b7bc4}
+.task{font-size:13px;background:#f6f8fc;border-radius:11px;padding:9px 11px;margin-bottom:8px;
+  min-height:40px;white-space:pre-wrap;word-break:break-word}
+.task.empty{color:var(--muted)}
+.task.keep{background:#fff8e8;border:1.5px dashed #f0c463}
+.keeptag{display:inline-block;font-size:10px;font-weight:600;color:#b8860b;
+  background:#fff3d4;border-radius:20px;padding:2px 9px;margin-bottom:6px}
+.cbtns button.clr{flex:0 0 auto;padding:8px 11px;background:#fff0f0;color:#d94848}
+.timer{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;
+  margin-bottom:6px;flex-wrap:wrap}
+.timer.ready{color:#1f9e6a}
+.note{font-size:12px;color:var(--muted);white-space:pre-wrap;word-break:break-word}
+.cbtns{display:flex;gap:7px;margin-top:11px}
+.cbtns button{flex:1;padding:8px;font-size:13px;box-shadow:none;background:#f2f5fb}
+
+/* ---------- modal ---------- */
+.overlay{position:fixed;inset:0;background:rgba(35,45,70,.48);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;padding:14px;z-index:99}
+.overlay.on{display:flex}
+.modal{background:#fff;border-radius:22px;padding:20px;width:100%;max-width:430px;
+  max-height:92vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.28)}
+.modal h3{font-size:18px;margin-bottom:14px}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:12px 0 5px}
+input,textarea,select{width:100%;font-family:inherit;font-size:14px;padding:10px 12px;
+  border:2px solid var(--line);border-radius:12px;background:#fbfcfe;color:var(--ink);outline:none}
+input:focus,textarea:focus,select:focus{border-color:#8f9fff}
+textarea{resize:vertical;min-height:64px}
+.quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.quick button{padding:6px 11px;font-size:12px;background:#eef2fb;box-shadow:none;border-radius:9px}
+.swatches{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sw{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent}
+.sw.on{border-color:#2f3d59}
+.mbtns{display:flex;gap:9px;margin-top:20px}
+.mbtns button{flex:1;padding:12px}
+@media(max-width:600px){
+  body{padding:10px}
+  h1{font-size:19px}
+  .office{min-height:260px;border-radius:18px}
+  .floorrow{padding:126px 10px 16px}
+  .unit{width:118px}
+  .rwrap{width:92px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div><h1>🏢 PaenLaen Office<span>ออฟฟิศน้อง AI ของพื้นลื่น</span></h1></div>
+  <div class="spacer"></div>
+  <button onclick="pull(true)">🔄 ดึงข้อมูล</button>
+  <button class="primary" onclick="openEdit(null)">➕ จ้างพนักงานใหม่</button>
+  <div class="sync"><i class="dot" id="dot"></i><span id="syncTxt">กำลังเริ่มต้น…</span></div>
+</header>
+
+<div class="office" id="office"><div class="floorrow" id="floor"></div></div>
+
+<h2>📋 การ์ดสรุปพนักงาน</h2>
+<div class="cards" id="cards"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="mTitle">แก้ไขข้อมูล</h3>
+    <label>ชื่อ AI</label>
+    <input id="f_name" placeholder="เช่น Claude">
+    <label>งานที่ใช้ทำ (ตำแหน่ง)</label>
+    <input id="f_role" placeholder="เช่น Coding / สร้างภาพ">
+    <label>สถานะ</label>
+    <select id="f_status">
+      <option value="free">🟢 ว่าง</option>
+      <option value="busy">🟡 กำลังทำ</option>
+      <option value="quota">🔴 โควต้าหมด</option>
+      <option value="rest">💤 พัก</option>
+    </select>
+    <label>งานที่ค้างอยู่</label>
+    <textarea id="f_task" placeholder="เช่น เขียนฟังก์ชันคำนวณภาษี ค้างที่ขั้นตอนเทส…"></textarea>
+    <label>กลับมาใช้ได้เมื่อไหร่</label>
+    <input type="datetime-local" id="f_at">
+    <div class="quick">
+      <button onclick="addH(1)">+1 ชม.</button>
+      <button onclick="addH(3)">+3 ชม.</button>
+      <button onclick="addH(5)">+5 ชม.</button>
+      <button onclick="tmr()">พรุ่งนี้ 9 โมง</button>
+      <button onclick="document.getElementById('f_at').value=''">ล้าง</button>
+    </div>
+    <label>โน้ตเพิ่มเติม</label>
+    <textarea id="f_note" placeholder="อยากจำอะไรเพิ่ม…"></textarea>
+    <label>สีประจำตัว (จุดสีหน้าชื่อ)</label>
+    <div class="swatches" id="sw"></div>
+    <div class="mbtns">
+      <button onclick="closeEdit()">ยกเลิก</button>
+      <button class="primary" onclick="saveForm()">บันทึก</button>
+    </div>
+    <div class="mbtns" id="delRow" style="display:none">
+      <button class="danger" onclick="removeEmp()">🗑 ลบพนักงานคนนี้</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ ⚙️ ใส่ URL เว็บแอปของคุณตรงนี้ ============ */
+const API_URL = "https://script.google.com/macros/s/AKfycbzwvn-1VVsvfCCoKwVXso_21GEqNmstQuSlkfQUGRkihrVnT8u1FyGkTf0ooOgMeD75/exec";
+/* ====================================================== */
+
+/* รูปจาก Google Drive (ใส่ให้แล้ว) */
+const BG_ID    = "1TImx4n1SmtG90-h0m4rBShnOnscGpwDn";
+const ROBOT_ID = "1ODDyIqoh7ByGoxix7ziyuy7BzW8NQCzg";
+const drive = (id,w)=>`https://lh3.googleusercontent.com/d/${id}=w${w}`;
+const BG_URL = drive(BG_ID,1600), ROBOT_URL = drive(ROBOT_ID,500);
+document.getElementById('office').style.backgroundImage = `url('${BG_URL}')`;
+
+const COLORS = ['#D97757','#10A37F','#4285F4','#8B5CF6','#F59E0B','#EC4899','#14B8A6','#EF4444'];
+const LABEL = {free:'🟢 ว่าง', busy:'🟡 กำลังทำ', quota:'🔴 โควต้าหมด', rest:'💤 พัก'};
+const MARK  = {quota:'🔴', rest:'💤', busy:'', free:''};
+const DEFAULTS = [
+  {name:'Claude',   role:'Coding',    color:'#D97757'},
+  {name:'ChatGPT',  role:'สร้างภาพ',   color:'#10A37F'},
+  {name:'Gemini',   role:'AppScript', color:'#4285F4'},
+  {name:'Copilot',  role:'สร้างภาพ',   color:'#8B5CF6'},
+  {name:'OpenCode', role:'Coding',    color:'#F59E0B'}
+];
+
+let data = [], editId = null, pickColor = COLORS[0];
+
+function api(params){
+  return new Promise((res,rej)=>{
+    if(!API_URL || API_URL.indexOf('/exec')<0) return rej(new Error('ยังไม่ได้ใส่ URL เว็บแอป'));
+    const cb='__cb'+Math.random().toString(36).slice(2);
+    const s=document.createElement('script');
+    const t=setTimeout(()=>{done();rej(new Error('หมดเวลารอ'))},20000);
+    function done(){clearTimeout(t);try{delete window[cb]}catch(e){};s.remove()}
+    window[cb]=d=>{done();res(d)};
+    s.onerror=()=>{done();rej(new Error('เชื่อมต่อไม่ได้'))};
+    s.src=API_URL+'?'+new URLSearchParams(Object.assign({},params,{callback:cb}));
+    document.head.appendChild(s);
+  });
+}
+function setSync(st,tx){document.getElementById('dot').className='dot '+st;
+  document.getElementById('syncTxt').textContent=tx}
+
+async function pull(){
+  const c=localStorage.getItem('aioffice');
+  if(c&&!data.length){try{data=JSON.parse(c);render()}catch(e){}}
+  setSync('load','กำลังดึงข้อมูลจาก Google Sheet…');
+  try{
+    const r=await api({action:'load'});
+    if(!r.ok) throw new Error(r.error);
+    if(r.data.length) data=r.data;
+    else if(!data.length){ data=DEFAULTS.map(mk); await push(); }
+    localStorage.setItem('aioffice',JSON.stringify(data));
+    setSync('ok','ซิงค์แล้ว • '+new Date().toLocaleTimeString('th-TH'));
+    render();
+  }catch(e){
+    setSync('err','⚠️ '+e.message+' (ใช้ข้อมูลในเครื่องชั่วคราว)');
+    if(!data.length){ data=DEFAULTS.map(mk); render(); }
+  }
+}
+async function push(){
+  localStorage.setItem('aioffice',JSON.stringify(data));
+  setSync('load','กำลังบันทึก…');
+  try{
+    const r=await api({action:'save',payload:JSON.stringify(data)});
+    if(!r.ok) throw new Error(r.error);
+    setSync('ok','บันทึกแล้ว • '+new Date().toLocaleTimeString('th-TH'));
+  }catch(e){ setSync('err','⚠️ บันทึกไม่สำเร็จ: '+e.message); }
+}
+function mk(d){
+  return {id:'e'+Date.now()+Math.floor(Math.random()*999),name:d.name||'AI ใหม่',
+    role:d.role||'',status:'free',task:'',availableAt:'',note:'',color:d.color||COLORS[0]};
+}
+function autoFree(){
+  let ch=false;
+  data.forEach(e=>{
+    if(e.availableAt&&e.status!=='free'&&new Date(e.availableAt)<=new Date()){
+      e.status='free'; e.availableAt='';   // ⬅️ task กับ note คงไว้เหมือนเดิม
+      ch=true;
+    }
+  });
+  if(ch){render();push()}
+}
+function countdown(iso){
+  const ms=new Date(iso)-new Date();
+  if(ms<=0) return {ready:true,txt:'พร้อมใช้งานแล้ว!'};
+  const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),
+        m=Math.floor(s%3600/60),ss=s%60;
+  const t=d?`${d} วัน ${h} ชม.`:h?`${h} ชม. ${m} นาที`:m?`${m} นาที ${ss} วิ`:`${ss} วินาที`;
+  return {ready:false,txt:'อีก '+t};
+}
+function fmt(iso){return new Date(iso).toLocaleString('th-TH',
+  {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function render(){
+  const floor=document.getElementById('floor'), cards=document.getElementById('cards');
+  floor.innerHTML='';cards.innerHTML='';
+  data.forEach(e=>{
+    const cd=e.availableAt?countdown(e.availableAt):null;
+    const keep=e.status==='free'&&(e.task||e.note);
+    const bub=e.status==='free'
+      ? (keep?'ว่างแล้ว • มีงานค้าง 📌':'พร้อมลุย! 🎉')
+      : (cd?cd.txt:LABEL[e.status].slice(2));
+
+    const u=document.createElement('div');
+    u.className='unit';u.dataset.s=e.status;u.style.setProperty('--c',e.color);
+    u.onclick=()=>openEdit(e.id);
+    u.innerHTML=`<div class="bubble">${esc(bub)}</div>
+      <div class="rwrap"><img src="${ROBOT_URL}" alt="robot" loading="lazy">
+        <div class="shadow"></div><div class="badge">${MARK[e.status]}</div></div>
+      <div class="plate">
+        <div class="pname"><i class="chip"></i>${esc(e.name)}</div>
+        <div class="prole">${esc(e.role||'—')}</div>
+      </div>`;
+    floor.appendChild(u);
+
+    const c=document.createElement('div');
+    c.className='card';c.style.setProperty('--c',e.color);
+    c.innerHTML=`
+      <div class="chead">
+        <div class="thumb"><img src="${ROBOT_URL}" alt=""><i class="cdot"></i></div>
+        <div style="flex:1;min-width:0">
+          <div class="cname">${esc(e.name)}</div><div class="crole">${esc(e.role||'—')}</div>
+        </div>
+        <span class="pill p-${e.status}">${LABEL[e.status]}</span>
+      </div>
+      ${keep?'<div class="keeptag">📌 งานค้างจากรอบที่แล้ว</div>':''}
+      <div class="task ${e.task?'':'empty'} ${keep&&e.task?'keep':''}">${esc(e.task||'ไม่มีงานค้าง 🎉')}</div>
+      ${e.availableAt?`<div class="timer ${cd.ready?'ready':''}">⏰ ${cd.txt}
+        <span style="font-weight:400;color:var(--muted);font-size:11px">(${fmt(e.availableAt)})</span></div>`:''}
+      ${e.note?`<div class="note">📝 ${esc(e.note)}</div>`:''}
+      <div class="cbtns">
+        <button onclick="openEdit('${e.id}')">✏️ แก้ไข</button>
+        <button onclick="quickFree('${e.id}')">🟢 ว่างแล้ว</button>
+        ${(e.task||e.note)?`<button class="clr" onclick="clearTask('${e.id}')" title="ล้างงานค้าง">🧹</button>`:''}
+      </div>`;
+    cards.appendChild(c);
+  });
+}
+
+function quickFree(id){
+  const e=data.find(x=>x.id===id);
+  e.status='free'; e.availableAt='';       // ⬅️ ไม่แตะ task / note
+  render(); push();
+}
+function clearTask(id){
+  const e=data.find(x=>x.id===id);
+  if(!confirm('ล้างงานค้างและโน้ตของ '+e.name+' ?'))return;
+  e.task=''; e.note=''; render(); push();
+}
+function openEdit(id){
+  editId=id;
+  const e=id?data.find(x=>x.id===id):{name:'',role:'',status:'free',task:'',availableAt:'',note:'',color:COLORS[0]};
+  document.getElementById('mTitle').textContent=id?'✏️ แก้ไข '+e.name:'➕ จ้างพนักงานใหม่';
+  f_name.value=e.name;f_role.value=e.role;f_status.value=e.status;
+  f_task.value=e.task;f_note.value=e.note;
+  f_at.value=e.availableAt?toLocal(e.availableAt):'';
+  pickColor=e.color;drawSw();
+  document.getElementById('delRow').style.display=id?'flex':'none';
+  document.getElementById('overlay').classList.add('on');
+}
+function closeEdit(){document.getElementById('overlay').classList.remove('on')}
+function drawSw(){
+  document.getElementById('sw').innerHTML=COLORS.map(c=>
+    `<div class="sw ${c===pickColor?'on':''}" style="background:${c}" onclick="pickColor='${c}';drawSw()"></div>`).join('');
+}
+function toLocal(iso){const d=new Date(iso),p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`}
+function addH(h){const b=f_at.value?new Date(f_at.value):new Date();
+  b.setHours(b.getHours()+h);f_at.value=toLocal(b.toISOString())}
+function tmr(){const d=new Date();d.setDate(d.getDate()+1);d.setHours(9,0,0,0);f_at.value=toLocal(d.toISOString())}
+function saveForm(){
+  const name=f_name.value.trim();
+  if(!name){alert('ใส่ชื่อ AI ก่อนนะคะ 😊');return}
+  const o={name,role:f_role.value.trim(),status:f_status.value,task:f_task.value.trim(),
+    availableAt:f_at.value?new Date(f_at.value).toISOString():'',note:f_note.value.trim(),color:pickColor};
+  if(editId) Object.assign(data.find(x=>x.id===editId),o);
+  else data.push(Object.assign(mk({}),o));
+  closeEdit();render();push();
+}
+function removeEmp(){
+  const e=data.find(x=>x.id===editId);
+  if(!confirm('ลบ '+e.name+' ออกจากออฟฟิศ?'))return;
+  data=data.filter(x=>x.id!==editId);closeEdit();render();push();
+}
+
+drawSw();pull();
+setInterval(()=>{if(data.length){autoFree();render()}},1000);
+document.getElementById('overlay').onclick=e=>{if(e.target.id==='overlay')closeEdit()};
+</script>
+</body>
+</html>
