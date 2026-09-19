@@ -18,7 +18,9 @@
       --success: #4aaf8b;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       min-height: 100vh;
@@ -31,7 +33,12 @@
         #fff6e9;
     }
 
-    button, input, select, textarea { font: inherit; }
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
 
     .page {
       width: min(960px, calc(100% - 28px));
@@ -55,27 +62,27 @@
       background: #fff;
       border: 3px solid #fff;
       border-radius: 18px;
-      box-shadow: 0 5px 0 #e9cbd3, 0 10px 24px rgba(111, 74, 87, .12);
+      box-shadow: 0 5px 0 #e9cbd3, 0 10px 24px rgba(111, 74, 87, 0.12);
     }
 
     h1 {
       margin: 0;
       font-size: clamp(1.35rem, 4vw, 1.9rem);
-      letter-spacing: -.04em;
+      letter-spacing: -0.04em;
     }
 
     .subtitle {
       margin: 4px 0 0;
       color: var(--muted);
-      font-size: .88rem;
+      font-size: 0.88rem;
     }
 
     .panel {
       padding: 22px;
-      background: rgba(255, 253, 248, .9);
+      background: rgba(255, 253, 248, 0.9);
       border: 4px solid #fff;
       border-radius: 24px;
-      box-shadow: 0 16px 45px rgba(115, 77, 89, .13);
+      box-shadow: 0 16px 45px rgba(115, 77, 89, 0.13);
     }
 
     .login-panel {
@@ -84,18 +91,27 @@
       text-align: center;
     }
 
-    .login-panel h2 { margin: 0 0 8px; }
-    .login-panel p { margin: 0 0 18px; color: var(--muted); font-size: .9rem; }
+    .login-panel h2 {
+      margin: 0 0 8px;
+    }
+
+    .login-panel p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
 
     label {
       display: block;
       margin: 0 0 7px;
       color: #846c77;
-      font-size: .8rem;
+      font-size: 0.8rem;
       font-weight: bold;
     }
 
-    input, select, textarea {
+    input,
+    select,
+    textarea {
       width: 100%;
       padding: 11px 12px;
       color: var(--ink);
@@ -105,9 +121,11 @@
       outline: none;
     }
 
-    input:focus, select:focus, textarea:focus {
+    input:focus,
+    select:focus,
+    textarea:focus {
       border-color: #e79cb3;
-      box-shadow: 0 0 0 4px rgba(231, 156, 179, .16);
+      box-shadow: 0 0 0 4px rgba(231, 156, 179, 0.16);
     }
 
     textarea {
@@ -127,9 +145,19 @@
       box-shadow: 0 4px 0 #e9a5b9;
     }
 
-    .button:hover { filter: brightness(.98); }
-    .button:active { transform: translateY(3px); box-shadow: 0 1px 0 #e9a5b9; }
-    .button:disabled { cursor: wait; opacity: .65; }
+    .button:hover {
+      filter: brightness(0.98);
+    }
+
+    .button:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #e9a5b9;
+    }
+
+    .button:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
 
     .button.secondary {
       width: auto;
@@ -138,11 +166,12 @@
       box-shadow: 0 4px 0 #9bcfbf;
     }
 
-    .error, .notice {
+    .error,
+    .notice {
       display: none;
       margin-top: 13px;
       padding: 10px 12px;
-      font-size: .84rem;
+      font-size: 0.84rem;
       border-radius: 11px;
     }
 
@@ -156,8 +185,13 @@
       background: #dff6eb;
     }
 
-    .admin-content { display: none; }
-    .admin-content.show { display: block; }
+    .admin-content {
+      display: none;
+    }
+
+    .admin-content.show {
+      display: block;
+    }
 
     .toolbar {
       display: flex;
@@ -170,7 +204,7 @@
     .toolbar p {
       margin: 0;
       color: var(--muted);
-      font-size: .82rem;
+      font-size: 0.82rem;
     }
 
     .agent-list {
@@ -189,8 +223,14 @@
       border-radius: 16px;
     }
 
-    .agent-card:hover { background: #fff7f8; }
-    .agent-card.active { border-color: #efa8bd; background: #fff1f5; }
+    .agent-card:hover {
+      background: #fff7f8;
+    }
+
+    .agent-card.active {
+      background: #fff1f5;
+      border-color: #efa8bd;
+    }
 
     .agent-card strong {
       display: block;
@@ -201,7 +241,7 @@
       display: block;
       margin-top: 4px;
       color: var(--muted);
-      font-size: .76rem;
+      font-size: 0.76rem;
     }
 
     .status-pill {
@@ -224,8 +264,13 @@
       gap: 14px;
     }
 
-    .field { margin-bottom: 14px; }
-    .full { grid-column: 1 / -1; }
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
 
     .progress-line {
       display: flex;
@@ -252,23 +297,45 @@
       margin-top: 6px;
     }
 
-    .save-row .button { width: auto; min-width: 175px; }
+    .save-row .button {
+      width: auto;
+      min-width: 175px;
+    }
 
     .back-link {
       display: inline-block;
       margin-top: 19px;
       color: #8e6977;
-      font-size: .85rem;
+      font-size: 0.85rem;
       text-decoration: none;
     }
 
     @media (max-width: 650px) {
-      .page { width: min(100% - 18px, 960px); padding-top: 17px; }
-      .panel { padding: 17px; }
-      .agent-list { grid-template-columns: 1fr; }
-      .grid { grid-template-columns: 1fr; }
-      .full { grid-column: auto; }
-      .toolbar { align-items: flex-start; flex-direction: column; }
+      .page {
+        width: min(100% - 18px, 960px);
+        padding-top: 17px;
+      }
+
+      .panel {
+        padding: 17px;
+      }
+
+      .agent-list {
+        grid-template-columns: 1fr;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full {
+        grid-column: auto;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -289,9 +356,17 @@
 
       <form id="loginForm">
         <label for="password">รหัสผ่าน</label>
-        <input id="password" type="password" inputmode="numeric" autocomplete="current-password" required />
+        <input
+          id="password"
+          type="password"
+          inputmode="numeric"
+          autocomplete="current-password"
+          required
+        />
         <div style="height: 14px"></div>
-        <button class="button" type="submit">เข้าสู่หน้าจัดการ</button>
+        <button class="button" id="loginButton" type="submit">
+          เข้าสู่หน้าจัดการ
+        </button>
         <div class="error" id="loginError"></div>
       </form>
     </section>
@@ -299,13 +374,17 @@
     <section class="admin-content" id="adminContent">
       <div class="toolbar">
         <p id="lastUpdated">กำลังโหลดข้อมูล...</p>
-        <button class="button secondary" id="reloadButton" type="button">↻ โหลดข้อมูลใหม่</button>
+        <button class="button secondary" id="reloadButton" type="button">
+          ↻ โหลดข้อมูลใหม่
+        </button>
       </div>
 
       <div class="agent-list" id="agentList"></div>
 
       <section class="panel">
-        <h2 class="editor-title" id="editorTitle">เลือกตัวละครที่ต้องการแก้ไข</h2>
+        <h2 class="editor-title" id="editorTitle">
+          เลือกตัวละครที่ต้องการแก้ไข
+        </h2>
 
         <form id="agentForm">
           <div class="grid">
@@ -330,24 +409,37 @@
 
             <div class="field full">
               <label for="task">งานที่กำลังทำ</label>
-              <input id="task" type="text" maxlength="150" placeholder="เช่น ออกแบบหน้า Landing Page" />
+              <input
+                id="task"
+                type="text"
+                maxlength="150"
+                placeholder="เช่น ออกแบบหน้า Landing Page"
+              />
             </div>
 
             <div class="field full">
               <label for="note">บันทึกเพิ่มเติมในประวัติ (ไม่แสดงบนหน้าเกม)</label>
-              <textarea id="note" maxlength="300" placeholder="เช่น ปรับ mobile layout เรียบร้อยแล้ว"></textarea>
+              <textarea
+                id="note"
+                maxlength="300"
+                placeholder="เช่น ปรับ mobile layout เรียบร้อยแล้ว"
+              ></textarea>
             </div>
           </div>
 
           <div class="save-row">
-            <button class="button" id="saveButton" type="submit">บันทึกสถานะ ✦</button>
+            <button class="button" id="saveButton" type="submit">
+              บันทึกสถานะ ✦
+            </button>
             <span class="notice" id="saveNotice"></span>
             <span class="error" id="saveError"></span>
           </div>
         </form>
       </section>
 
-      <a class="back-link" href="./index.html">← กลับไปดู PaenLaen's Office</a>
+      <a class="back-link" href="./index.html">
+        ← กลับไปดู PaenLaen's Office
+      </a>
     </section>
   </main>
 
@@ -383,24 +475,16 @@
       element.style.display = "none";
     }
 
-    function loadOfficeData() {
+    function loadJsonp(url, callbackPrefix) {
       return new Promise((resolve, reject) => {
-        const callbackName = `adminCallback_${Date.now()}`;
+        const callbackName = `${callbackPrefix}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+        const script = document.createElement("script");
 
         window[callbackName] = data => {
           script.remove();
           delete window[callbackName];
-
-          if (!data || !data.ok) {
-            reject(new Error(data?.error || "ไม่สามารถโหลดข้อมูลได้"));
-            return;
-          }
-
           resolve(data);
         };
-
-        const script = document.createElement("script");
-        script.src = `${API_URL}?action=office&callback=${callbackName}&_=${Date.now()}`;
 
         script.onerror = () => {
           script.remove();
@@ -408,8 +492,36 @@
           reject(new Error("เชื่อมต่อข้อมูลไม่สำเร็จ"));
         };
 
+        const separator = url.includes("?") ? "&" : "?";
+        script.src = `${url}${separator}callback=${callbackName}&_=${Date.now()}`;
+
         document.body.appendChild(script);
       });
+    }
+
+    async function verifyPassword(password) {
+      const url =
+        `${API_URL}?action=verify` +
+        `&password=${encodeURIComponent(password)}`;
+
+      const data = await loadJsonp(url, "verifyCallback");
+
+      if (!data || !data.ok) {
+        throw new Error(data?.error || "รหัสผ่านไม่ถูกต้อง");
+      }
+
+      return data;
+    }
+
+    async function loadOfficeData() {
+      const url = `${API_URL}?action=office`;
+      const data = await loadJsonp(url, "officeCallback");
+
+      if (!data || !data.ok) {
+        throw new Error(data?.error || "ไม่สามารถโหลดข้อมูลได้");
+      }
+
+      return data;
     }
 
     async function refreshAgents() {
@@ -437,13 +549,17 @@
 
       agents.forEach(agent => {
         const button = document.createElement("button");
+
         button.type = "button";
-        button.className = `agent-card ${agent.id === selectedAgentId ? "active" : ""}`;
+        button.className =
+          `agent-card ${agent.id === selectedAgentId ? "active" : ""}`;
 
         button.innerHTML = `
           <strong>${escapeHtml(agent.name || "AI Agent")}</strong>
           <span>${escapeHtml(agent.role || "-")}</span>
-          <span class="status-pill">${statusLabels[agent.status] || "🛋️ กำลังพัก"}</span>
+          <span class="status-pill">
+            ${statusLabels[agent.status] || "🛋️ กำลังพัก"}
+          </span>
         `;
 
         button.addEventListener("click", () => {
@@ -460,7 +576,10 @@
 
     function fillEditor() {
       const agent = agents.find(item => item.id === selectedAgentId);
-      if (!agent) return;
+
+      if (!agent) {
+        return;
+      }
 
       document.getElementById("editorTitle").textContent =
         `แก้ไขสถานะของ ${agent.name}`;
@@ -489,45 +608,79 @@
 
     document.getElementById("loginForm").addEventListener("submit", async event => {
       event.preventDefault();
+
       hideMessage(loginError);
 
-      const input = document.getElementById("password");
-      adminPassword = input.value.trim();
+      const passwordInput = document.getElementById("password");
+      const loginButton = document.getElementById("loginButton");
+      const enteredPassword = passwordInput.value.trim();
 
-      if (!adminPassword) {
+      if (!enteredPassword) {
         showMessage(loginError, "กรุณากรอกรหัสผ่าน");
         return;
       }
 
+      loginButton.disabled = true;
+      loginButton.textContent = "กำลังตรวจสอบ...";
+
       try {
+        await verifyPassword(enteredPassword);
+
+        adminPassword = enteredPassword;
+
         await refreshAgents();
+
+        passwordInput.value = "";
         loginPanel.style.display = "none";
         adminContent.classList.add("show");
       } catch (error) {
-        showMessage(loginError, error.message);
+        adminPassword = "";
+        passwordInput.value = "";
+        passwordInput.focus();
+
+        showMessage(
+          loginError,
+          error.message || "รหัสผ่านไม่ถูกต้อง"
+        );
+      } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = "เข้าสู่หน้าจัดการ";
       }
     });
 
     document.getElementById("reloadButton").addEventListener("click", async () => {
+      hideMessage(saveError);
+      hideMessage(saveNotice);
+
       try {
         await refreshAgents();
       } catch (error) {
-        showMessage(saveError, error.message);
+        showMessage(saveError, error.message || "ไม่สามารถโหลดข้อมูลได้");
       }
     });
 
     document.getElementById("agentForm").addEventListener("submit", async event => {
       event.preventDefault();
+
       hideMessage(saveError);
       hideMessage(saveNotice);
 
-      const selectedAgent = agents.find(agent => agent.id === selectedAgentId);
+      const selectedAgent = agents.find(
+        agent => agent.id === selectedAgentId
+      );
+
       if (!selectedAgent) {
         showMessage(saveError, "กรุณาเลือกตัวละครก่อน");
         return;
       }
 
+      if (!adminPassword) {
+        showMessage(saveError, "เซสชันหมดอายุ กรุณารีเฟรชหน้าและเข้าสู่ระบบใหม่");
+        return;
+      }
+
       const saveButton = document.getElementById("saveButton");
+
       saveButton.disabled = true;
       saveButton.textContent = "กำลังบันทึก...";
 
@@ -553,10 +706,17 @@
           throw new Error(data.error || "บันทึกไม่สำเร็จ");
         }
 
-        showMessage(saveNotice, "บันทึกแล้ว! หน้า Office จะอัปเดตภายในไม่เกิน 20 วินาที");
+        showMessage(
+          saveNotice,
+          "บันทึกแล้ว! หน้า Office จะอัปเดตภายในไม่เกิน 20 วินาที"
+        );
+
         await refreshAgents();
       } catch (error) {
-        showMessage(saveError, error.message || "ไม่สามารถบันทึกข้อมูลได้");
+        showMessage(
+          saveError,
+          error.message || "ไม่สามารถบันทึกข้อมูลได้"
+        );
       } finally {
         saveButton.disabled = false;
         saveButton.textContent = "บันทึกสถานะ ✦";
