@@ -2,110 +2,523 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <title>PaenLaen's Office - Command Center</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PaenLaen's Office</title>
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-    :root { --bg: #1a1c2c; --panel: #282c44; --text: #e0e0e0; }
-    body { background: var(--bg); color: var(--text); font-family: 'Press Start 2P', cursive; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-    
-    nav { width: 220px; background: var(--panel); border-right: 4px solid #141620; display: flex; flex-direction: column; padding: 20px; gap: 10px; }
-    .menu-item { padding: 15px; cursor: pointer; color: #888; font-size: 0.6rem; }
-    .menu-item:hover, .menu-item.active { color: var(--text); background: #353b5a; }
-
-    main { flex: 1; display: flex; flex-direction: column; padding: 20px; gap: 10px; }
-    #officeCanvas { background: #bdc3c7; border: 4px solid #fff; image-rendering: pixelated; width: 100%; max-width: 800px; margin: 0 auto; cursor: pointer; }
-    
-    aside { width: 280px; background: var(--panel); padding: 20px; border-left: 4px solid #141620; }
-    .profile-card { text-align: center; }
-    .avatar-lg { width: 80px; height: 80px; background: #fff; margin: 0 auto 10px; display: grid; place-items: center; font-size: 40px; border: 4px solid #333; color: #333; }
-  </style>
+:root{
+  --ink:#405b75;--muted:#7890a7;--cream:#fbfdff;--blue:#bfe1ff;--blue2:#dff2ff;
+  --mint:#c9f1e4;--yellow:#ffe8a8;--pink:#ffd5e3;--lav:#e5dcff;--line:#d7e7f3;
+  --panel:rgba(255,255,255,.9);
+}
+*{box-sizing:border-box}
+body{
+  min-height:100vh;margin:0;color:var(--ink);
+  font-family:"Trebuchet MS","Noto Sans Thai",Tahoma,sans-serif;
+  background:
+    radial-gradient(circle at 8% 8%,rgba(220,239,255,.95),transparent 25rem),
+    radial-gradient(circle at 92% 0%,rgba(224,250,241,.95),transparent 27rem),
+    #f6fbff;
+}
+button{font:inherit}
+.page{width:min(1180px,calc(100% - 28px));margin:0 auto;padding:22px 0 36px}
+.topbar{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{display:grid;width:50px;height:50px;place-items:center;font-size:24px;background:#fff;border:3px solid #fff;border-radius:16px;box-shadow:0 5px 0 #cfe5f7,0 9px 20px rgba(71,110,145,.12)}
+h1{margin:0;font-size:clamp(1.25rem,3vw,1.8rem);letter-spacing:-.03em}
+.tagline{margin:3px 0 0;color:var(--muted);font-size:.88rem}
+.connection{display:inline-flex;gap:8px;align-items:center;padding:9px 12px;color:#5e7790;font-size:.82rem;font-weight:bold;background:rgba(255,255,255,.78);border:1px solid #d7e7f3;border-radius:999px}
+.dot{width:9px;height:9px;background:#c5d1dc;border-radius:50%}
+.connection.online .dot{background:#69c8a6;box-shadow:0 0 0 4px rgba(105,200,166,.16)}
+.connection.error .dot{background:#f08b98;box-shadow:0 0 0 4px rgba(240,139,152,.14)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{padding:12px 15px;background:rgba(255,255,255,.78);border:1px solid #d7e7f3;border-radius:16px;box-shadow:0 7px 18px rgba(71,110,145,.07)}
+.stat-label{display:block;color:var(--muted);font-size:.76rem}.stat-value{display:block;margin-top:3px;font-size:1.25rem;font-weight:800}
+.office-card{position:relative;overflow:hidden;background:#fff;border:5px solid #fff;border-radius:25px;box-shadow:0 16px 45px rgba(71,110,145,.15);width:fit-content;max-width:100%;margin:0 auto}
+.office-card:before{position:absolute;z-index:2;top:0;right:0;left:0;height:8px;content:"";background:repeating-linear-gradient(90deg,#9ed2ff 0 18px,#c9f1e4 18px 36px,#ffe49b 36px 54px,#ffd3e3 54px 72px)}
+canvas{display:block;width:960px;max-width:100%;height:auto;margin:0 auto;image-rendering:pixelated;image-rendering:crisp-edges;cursor:pointer;touch-action:manipulation}
+.hint{position:absolute;z-index:3;right:14px;bottom:14px;padding:8px 11px;color:#58718a;font-size:.76rem;background:rgba(255,255,255,.86);border:1px solid #e4eff7;border-radius:10px;backdrop-filter:blur(5px)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;padding:16px 2px 0}.legend-item{display:inline-flex;gap:6px;align-items:center;padding:7px 10px;color:#647d93;font-size:.76rem;background:rgba(255,255,255,.72);border:1px solid #dceaf4;border-radius:999px}
+.legend-icon{font-size:.9rem}
+.modal-backdrop{position:fixed;z-index:10;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(65,91,112,.26);backdrop-filter:blur(3px)}
+.modal-backdrop.show{display:flex}.modal{position:relative;width:min(390px,100%);padding:23px;background:#fff;border:4px solid #fff;border-radius:23px;box-shadow:0 18px 55px rgba(48,75,95,.2)}
+.close{position:absolute;top:12px;right:12px;width:32px;height:32px;color:#6d8295;font-size:19px;line-height:1;cursor:pointer;background:#e9f4ff;border:0;border-radius:10px}
+.agent-heading{display:flex;gap:12px;align-items:center;padding-right:35px;margin-bottom:18px}.agent-avatar{display:grid;width:52px;height:52px;place-items:center;font-size:26px;background:var(--avatar-color,#dff2ff);border:3px solid #fff;border-radius:16px;box-shadow:0 4px 0 rgba(74,105,130,.14)}
+.agent-heading h2{margin:0;font-size:1.18rem}.agent-role{margin:3px 0 0;color:var(--muted);font-size:.84rem}
+.info-row{padding:11px 0;border-top:1px dashed #dce9f2}.info-label{display:block;margin-bottom:3px;color:#8aa0b2;font-size:.73rem;font-weight:bold}
+.progress-track{height:10px;overflow:hidden;margin-top:7px;background:#eaf2f8;border-radius:999px}.progress-fill{height:100%;background:linear-gradient(90deg,#83d7b8,#8fc9ff);border-radius:inherit}
+.small-note{margin:17px 0 0;color:#8aa0b2;font-size:.73rem;text-align:center}
+@media(max-width:620px){.page{width:min(100% - 18px,1180px);padding-top:13px}.topbar{align-items:flex-start}.connection{padding:8px;font-size:0}.connection .dot{margin:2px}.stats{gap:7px}.stat{padding:10px}.stat-value{font-size:1.05rem}.hint{display:none}}
+</style>
 </head>
+
 <body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">🏢</div>
+        <div>
+          <h1 id="officeName">PaenLaen's Office</h1>
+          <p class="tagline" id="tagline">A tiny kawaii workspace, always in motion.</p>
+        </div>
+      </div>
 
-<nav>
-  <div style="font-size: 0.8rem; margin-bottom: 20px;">YOUR COMPANY</div>
-  <div class="menu-item active">🏢 Office HQ</div>
-  <div class="menu-item">👥 AI Agents</div>
-  <div class="menu-item">📝 Projects</div>
-</nav>
+      <div class="connection" id="connection">
+        <span class="dot"></span>
+        <span id="connectionText">กำลังเชื่อมต่อ</span>
+      </div>
+    </header>
 
-<main>
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <h1 style="font-size: 0.9rem;">PaenLaen's Office</h1>
-    <div style="font-size: 0.6rem;">👩‍💻 <span id="wCount">0</span> | ☕ <span id="bCount">0</span> | ✨ <span id="pCount">0%</span></div>
+    <section class="stats" aria-label="สรุปสถานะออฟฟิศ">
+      <div class="stat">
+        <span class="stat-label">⌨️ กำลังทำงาน</span>
+        <strong class="stat-value" id="workingCount">0</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">☕ กำลังพัก</span>
+        <strong class="stat-value" id="breakCount">0</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">✨ งานเสร็จเฉลี่ย</span>
+        <strong class="stat-value" id="progressCount">0%</strong>
+      </div>
+    </section>
+
+    <section class="office-card">
+      <canvas id="officeCanvas" width="960" height="620" aria-label="AI Office แบบ Pixel Art มุมมองจากด้านบน"></canvas>
+      <div class="hint">คลิกตัวละครเพื่อดูสถานะ ✦  •  AI Handoff แสดงเฉพาะงาน 100%</div>
+    </section>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-icon">⌨️</span> ทำงานที่โต๊ะ</span>
+      <span class="legend-item"><span class="legend-icon">☕</span> Coffee Break</span>
+      <span class="legend-item"><span class="legend-icon">🗒️</span> ประชุม</span>
+      <span class="legend-item"><span class="legend-icon">🛋️</span> พักผ่อน</span>
+      <span class="legend-item"><span class="legend-icon">💭</span> ต้องการความช่วยเหลือ</span>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="agentName">
+      <button class="close" id="closeModal" aria-label="ปิด">×</button>
+
+      <div class="agent-heading">
+        <div class="agent-avatar" id="agentAvatar">🌸</div>
+        <div>
+          <h2 id="agentName">Momo</h2>
+          <p class="agent-role" id="agentRole">UX Designer</p>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">สถานะตอนนี้</span>
+        <strong id="agentStatus">กำลังทำงาน</strong>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">งานที่กำลังทำ</span>
+        <span id="agentTask">-</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">ความคืบหน้า <span id="agentProgressText">0%</span></span>
+        <div class="progress-track">
+          <div class="progress-fill" id="agentProgressFill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">อัปเดตล่าสุด</span>
+        <span id="agentUpdatedAt">-</span>
+      </div>
+
+      <p class="small-note">สถานะจะอัปเดตอัตโนมัติจาก PaenLaen's Office Database</p>
+    </section>
   </div>
-  <canvas id="officeCanvas" width="800" height="450"></canvas>
-  <div style="font-size: 0.6rem; color: #666; text-align: center;">Working Agents <span id="workingAgents">0</span>/4</div>
-</main>
 
-<aside>
-  <div class="profile-card">
-    <div class="avatar-lg" id="sideAvatar">👤</div>
-    <h2 id="sideName" style="font-size: 0.7rem;">Select Agent</h2>
-    <p id="sideRole" style="font-size: 0.5rem; color: #aaa;"></p>
-    <div id="sideTask" style="font-size: 0.6rem; margin-top: 20px; line-height: 1.5;">Please click on an agent.</div>
-  </div>
-</aside>
-
-<script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbxSUzPtHByx6hMhv1BXqHwZcTTgldom4LBz7JtzZvFWpKSMfELrJ0SB4uUzOxUB6_wH/exec";
-  const canvas = document.getElementById('officeCanvas');
-  const ctx = canvas.getContext('2d');
   
-  let agents = [];
+<script>
+const SPRITE_CODE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAAAgCAYAAAAbrK/lAAADSklEQVR4nO2cP4sTQRyG58RO5ThIc59BAqLIHhZXRDibELCw0faalIGrLawPUqax1cZCONIomMJCDKIIwc+QJhAOtY7FkWMN+3939p3deZ4qXCbzzvvu73Z2d3bXGAAAAAAAAAAAaDl7aQ3ud+9tygj8WPxM1XAZtX+1vhq1f7W+GrV/tb4a2/5vlum8DnwvADXkr4X8tbQ9/xvqAQAAgIbECaDs7FdVHyrU/tX6atT+1fpq1P7V+mrq8O/0GYDvBaCG/LWQvxYf8nd6AgAAAHvkWgT+/vZVpnYPnr8sNBjXUftX66tR+1frq1H7V+urseHf+buAwvhcAIf7B6Y/HJvpZCQbgzJ/F/xnoT8cm8P9A7O8XFfedxPq36Z/NU3IPy+5LwH1h+NC37UFX/1vd8DgNtsdMEAWck8ASUdgdRydqXfAKv/Ly7XzR782aYr/6WTUyqPfrPjuv2mUugS0ePPr+nP3xd3Sg8mCegIKo/CvYnm5znwKDDqmk1GjLkGAltSn1ILgePP19Vmhzo9Oz818/rnwk3C7t1Dt7oDidsC7/wBlnsZT+lfrp+UfB/lXo0/+5G/bf+SXm8WFlXtX97qD3EEoCkDtX60fhvzr1w9D/vXrh2l7/k7eBVRVAFcb7uy6ryIF4CPkr4X8tfiUf6YJ4Oj03MxmF7k67vUGZrVaFRqUa6j9q/XVqP2r9dWo/av11dj0b/0M4Nn7b+bd04el+mhyAVThX61P/lp98tfqtzl/66+CUG58Y64CUKL2r9Ynf/L3Wd/1/Fv/LiB1AfgO+Wshfy2u59/6CQAAAKKJXAMIr1YHwbHTrzO1gdq/Wl+N2r9aX43av1pfTZ3+My8C93qD3J13Op1C98G6WAB1+lfrk79Wn/y1+j7lnymcx496/4Xw6css8ndZ2+Wh7AaoqgCNifdnw3cW3aLt8kD+5L+F/PPjev5OPggWZhtgmknbRegr5K+F/LW0PX8WgQEAPCX9ZXDd4OT2nVsfwn/78/vvk6i2Ue3mi/nHMgMMusFJXN9p2sYYU5V+kkbS2KrQJ/9kDfIn/7hxkH+yPmcAAACekmkNIG7GLdquCGl929RO07CtTf7JGuRP/rbH4XP+AAAAAADQFv4BHGl3oE/mGr0AAAAASUVORK5CYII=";
+const SPRITE_ANALYST = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAAAgCAYAAAAbrK/lAAADNElEQVR4nO3cP2tTURjH8afBqTWDLn0PSuZAhw4R6hI6K66CZJJCB1+CQyB0CkJX0TlkUTCDQ6Fz0PeQySGm0KXpkso1JPf/ub+Te76fKbS39znPr6c59+beWzMAAAAAAADU3F7SBq+Oni2LFPh69Tuxhs/U/avrq6n7V9dXU/evrq/muv9HRXZehdAngBr5a5G/Vt3zb6gHAADQiF0Aiq5+Ze1DRd2/ur6aun91fTV1/+r6alX07/UZQOgTQI38tchfK4T8vV4AAADuZLoI/OXTx1TbvX73IddgfKfuX11fTd2/ur6aun91fTUX/Xt/F1BUyBNg3ji0bm9g4+GZbAzK/H3oP41ub2DWOLTm3az0fe/C/HfZv9ou5J9V5o+Aur1Bru/VRaj9P7wBw2/d3sDmjUP1MLAjMi8AcUdgVRydqd+AVf0372beH/26tCv9j4dntTz6TSv0/ndNoY+App9//XvdevO88GDSUC9AUYr+VZp3s9SnwNAZD8926iMIaCU+pba4OF7ud85z7fxm0rfb1eun739mfiJu/Raq9TegbW/A638ARZ7GU/avrp+U/zbkX0598id/1/1v/OJyOirt3tU/k76ZmT3pnNte6zRzEIoJoO5fXT+K/KuvH0X+1dePqnv+Xt4FVFYA+51zu10FsJyOlnkmQIjIX4v8tULKP9UCcDPpm70dZdvz5anlXTl9o+5fXV9N3b+6vpq6f3V9NZf9e3kGsC70CaBG/lrkr1Xn/PlXEAAQKBYAAAgUCwAABGrjNYDo1erFxXHuK+I3qyvg6/v0nbp/dX01df/q+mrq/tX11arsP/1F4MvTXIPI8wCGlxOgwv7V9clfW5/8tfVDyj/VoF4cdf4L4cfVZOPPpd0uiyK/ADOzg7ImoG3vz0Xfaerm3S4L8if/B+Sfne/5e38b6EOASU26noShIn8t8teqe/5cBAaAQCWuUu1W++Rx8+Bb9Gt/54uXm7bdtN319Pp7kQG2W+2TbftOqm1mVlb9uBpxYyujPvnH1yB/8t82DvKPr88ZAAAEKtU1gG0rbt7t8kjat8vaSTVc1yb/+BrkT/6uxxFy/gAAAADq4h6WUoVn2YsHyQAAAABJRU5ErkJggg==";
+const SPRITE_ARTIST = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAAAgCAYAAAAbrK/lAAADTUlEQVR4nO3cvW7TUBjG8dOGdAhwFSwglIkhEkIMRSogRdwAaztkQpE6cAkMSBFThnTlBlAkPiQ6IISUoSwRgqULtwAsjdIwBTkhsY8/jp9jn/9vKqnx4/epayd2UmMAAAAAAABQcztJCzzq3F/kCXg3+ZSY4TP1/Op8NfX86nw19fzqfDXX81/Js/IyhL4DqNG/Fv1r1b3/XfUGAAA0Yk8Aec9+Ra1DRT2/Ol9NPb86X009vzpfrYz5vX4FEPoOoEb/WvSvFUL/Xp8AAADupLoJ/Pbk2Gq5x4cvM22M79Tzq/PV1POr89XU86vz1VzM7/27gKJC3gEazYbp9gZmPOzLtkHZvw/z2+j2BqbRbJj5bF74uquw/7ucX60K/aeV+hJQtzfI9L26CHX+5QEYflsegAEbqU8Acc/Aynh2pj4Aq+afz+beP/t1qSrzj4f9Wj77tRX6/FWT6xLQ9PW3f1+3n97OvTE21CegKMX8KvPZ3PolMHTGw36lLkFAK/FTaodn48Vo7zLTyo8uds3JnW7mT8Ktv4Vq/QC07QC8/guQ59N4yvnV+Un9b0P/xeTTP/27nn/jNxfTN07eu7rTfpK6CMUOoJ5fnR9F/+XnR9F/+flRde/fy3cBrRaQrXxjjBntXZpRZF1ZdoAQ0b8W/WuF1L/VCeDoYte8unkv1YqPf37977He99PF8Na+dyUkUc+vzldTz6/OV1PPr85Xczm/01cAz290Vv794nySaT1V3QGKml+dT//afPrX5te5fy8vARVFvQOGjv616F+rCv3zt4AAIFCcAAAgUBsvAUXvVh+ejb3+c6YuqOdX56up51fnq6nnV+erlTm/9T2AZz8+p1pxs9XKfM3Lxx2gzPnV+fSvzad/bX5I/VvdkX5wd3+lhI9fTjf+P9vl0sj6A2i2Whsfz3MXftt8Lua2yc26XBr0T/9L9G+vKv17/y6g5SfpkoZ0vROGiv616F+r7v1zExgAApV4luq0OwfXrl99H33s968/Dzctu2m5yXTyIc8Gdtqdg23rTso2xpii8uMy4ratiHz6j8+gf/rfth30H5/PKwAACJTVPYBtZ9ysy2WRtG6X2UkZrrPpPz6D/unf9XaE3D8AAACAuvgLOMGgRGDvrXEAAAAASUVORK5CYII=";
+const SPRITE_EDITOR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAAAgCAYAAAAbrK/lAAADXklEQVR4nO2dv2sTUQDHX8SAoKL/gYsFQULHgJsK6RILzq7pkKkE+mcUglMGuzoXSkAaUDchowTBoUv9CyxVEDLEKeWMubt3P9593937fKaQXO57309e7+Vyl9QYAAAAAAAAAABoOK20BXrd56siAbP559QMn1H3V+erUfdX56tR91fnq3Hd/3aRlVdB6ANADf614F9L0/3fUm8AAABoSJwAis5+Za1Dhbq/Ol+Nur86X426vzpfTRX9vT4CCH0AqMG/FvxrCcG/1xMAAAC4I9NJ4POTkdVye4Nxro3xHXV/db4adX91vhp1f3W+Ghf9vb8KKErIA6DdNqY/HJvpxM6BC5T+fehvQ384Nu22Mctl+euuw/h32V9NHfxnJfNHQP1hfLmkx5pCqP3XO2Dwm/UOGMCGzBNA0juwKt6dqXfAqv7LZTV+faUu/aeTUSPf/doSev+6UegjoMX7bze3O2+eFt4YG9QTUBRFfxXLpf0hMOiYTka1+ggCtKR+S21werl69/hrrpUfXOyak9ePcn8TbvMSqs0dUNwOePMPoMi38ZT91flp/uPAfzn5+Me/6/5bH1wtzpxcu9rq7GcWoRgA6v7q/Cj4rz4/Cv6rz4/SdP9OJ4CrnVf/3ffwTitViHoANKW/On8T/OMf/+lU2d/qHMDBxa5523uQKfxwdmWOdzI9pXQ2Bfz8s1rZDIBN1P3V+XnBfzn5ecF/Ofl5qYN/598DODr7fnP7eP9JrnXUdQAYU05/dT7+tfn41+Y32b/zCUDxokdRD0B1f3U+/vGvRJ3vu/9aHAEUIfQBoM7HP/7X4L96OAIIfACo8/GPfyXqfN/9b50AomerB6eXXv+caRp5pKv7q/PLBP9a8K/Fd//WRwCHs6vMKz/68CPXdbA+DoAq+6vz8a/Nx782PyT/VnJePnvxj4SPXz5tfZ7tclko+gKUNQCNie/nordNbt7lsoB//K/Bf3Z89+/9z0GvBaaVdD0IQwX/WvCvpen++Y9gAACBkjpLdTvd3r37d8+j9/26/r23bdlty80X81mRDex2ur24dadlG2NMWflJGUnbVkY+/pMz8I//uO3Af3I+RwAAAIFidQ4gbsbNu1we0tbtMjstw3U2/pMz8I9/19sRsn8AAAAAAGgKfwH36tuGz+lbAgAAAABJRU5ErkJggg==";
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbxSUzPtHByx6hMhv1BXqHwZcTTgldom4LBz7JtzZvFWpKSMfELrJ0SB4uUzOxUB6_wH/exec";
 
-  // ตำแหน่งโต๊ะ 4 ตัว
-  const deskPositions = [
-    {x: 200, y: 120}, {x: 500, y: 120},
-    {x: 200, y: 300}, {x: 500, y: 300}
-  ];
+const canvas = document.getElementById("officeCanvas");
+const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+const W=canvas.width,H=canvas.height;
 
-  function draw() {
-    ctx.clearRect(0, 0, 800, 450);
-    // วาดโต๊ะ
-    ctx.fillStyle = '#d35400';
-    deskPositions.forEach(d => ctx.fillRect(d.x, d.y, 100, 60));
+const state={
+  agents:[], office:{
+    name:"PaenLaen's AI Office",
+    tagline:"A tiny AI team, always in motion.",
+    refresh_seconds:20,
+    show_speech_bubbles:true
+  },
+  lastUpdated:"", selectedAgent:null,time:0
+};
 
-    // วาดตัวละครจากข้อมูลที่ดึงมา
-    agents.forEach((a, i) => {
-      const pos = deskPositions[i % 4];
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.arc(pos.x + 50, pos.y + 30, 15, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#000'; ctx.font = '8px Arial'; ctx.textAlign = 'center';
-      ctx.fillText(a.name, pos.x + 50, pos.y + 50);
-    });
-    requestAnimationFrame(draw);
-  }
+const locations={
+  desk_1:{x:275,y:270,direction:"up"},
+  desk_2:{x:500,y:270,direction:"up"},
+  desk_3:{x:275,y:455,direction:"up"},
+  desk_4:{x:500,y:455,direction:"up"}
+};
 
-  async function updateData() {
-    try {
-      const res = await fetch(API_URL + "?action=office");
-      const data = await res.json();
-      agents = data.agents;
-      document.getElementById('wCount').textContent = agents.filter(a => a.status === 'working').length;
-      document.getElementById('workingAgents').textContent = agents.filter(a => a.status === 'working').length;
-    } catch(e) { console.error(e); }
-  }
+const sharedSlots={
+  coffee:[
+    {x:670,y:205,direction:"down"},{x:735,y:205,direction:"down"},
+    {x:800,y:205,direction:"down"},{x:700,y:270,direction:"left"}
+  ],
+  idle:[
+    {x:715,y:470,direction:"up"},{x:790,y:470,direction:"up"},
+    {x:855,y:470,direction:"left"},{x:755,y:535,direction:"up"}
+  ],
+  meeting:[
+    {x:105,y:470,direction:"right"},{x:180,y:470,direction:"left"},
+    {x:105,y:535,direction:"right"},{x:180,y:535,direction:"left"}
+  ]
+};
 
-  canvas.addEventListener('click', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 800;
-    const y = ((e.clientY - rect.top) / rect.height) * 450;
-    
-    agents.forEach((a, i) => {
-      const pos = deskPositions[i % 4];
-      if(Math.hypot(x - (pos.x + 50), y - (pos.y + 30)) < 30) {
-        document.getElementById('sideName').textContent = a.name;
-        document.getElementById('sideRole').textContent = a.role;
-        document.getElementById('sideTask').textContent = a.task;
-        document.getElementById('sideAvatar').textContent = '👤';
-      }
-    });
+const defaultsByDesk={
+  desk_1:{name:"พี่โค้ด",role:"โปรแกรมเมอร์",character:"code",color:"blue"},
+  desk_2:{name:"ลุงคิด",role:"นักวิเคราะห์",character:"analyst",color:"orange"},
+  desk_3:{name:"น้องปั้น",role:"ศิลปิน",character:"artist",color:"mint"},
+  desk_4:{name:"น้องเกลา",role:"บรรณาธิการ",character:"editor",color:"sky"}
+};
+
+const statusLabels={
+  working:"กำลังทำงาน",coffee:"พักดื่มกาแฟ",meeting:"อยู่ในที่ประชุม",
+  idle:"กำลังพัก",blocked:"งานติดขัด"
+};
+const statusBubbles={
+  working:["กำลังโฟกัส!","กำลังทำงาน...","ใกล้เสร็จแล้ว!"],
+  coffee:["เติมพลังแป๊บ ☕","พักก่อนนะ","Coffee break!"],
+  meeting:["ประชุมกันค่ะ","Brainstorm!","กำลังคุยงาน"],
+  idle:["พักสายตา","กำลังคิดอยู่...","ขอพักแป๊บ"],
+  blocked:["ขอความช่วยเหลือ","ติดตรงไหนนะ?","ช่วยดูให้หน่อย"]
+};
+
+const spriteSources={
+  code:SPRITE_CODE,analyst:SPRITE_ANALYST,artist:SPRITE_ARTIST,editor:SPRITE_EDITOR
+};
+const spriteImages={};
+Object.entries(spriteSources).forEach(([key,src])=>{
+  const img=new Image(); img.src=src; spriteImages[key]=img;
+});
+
+function normalizeStatus(s){
+  return ["working","coffee","meeting","idle","blocked"].includes(s)?s:"idle";
+}
+
+function enrichAgent(agent,index){
+  const desk=agent.desk_id || `desk_${index+1}`;
+  const fallback=defaultsByDesk[desk] || defaultsByDesk.desk_1;
+  return {
+    ...fallback,...agent,
+    desk_id:desk,
+    name:agent.name || fallback.name,
+    role:agent.role || fallback.role,
+    character:agent.character || fallback.character,
+    color:agent.color || fallback.color,
+    status:normalizeStatus(agent.status),
+    progress:Math.max(0,Math.min(100,Number(agent.progress)||0))
+  };
+}
+
+function targetFor(agent){
+  const status=normalizeStatus(agent.status);
+  if(status==="working"||status==="blocked") return locations[agent.desk_id]||locations.desk_1;
+  const slots=sharedSlots[status]||sharedSlots.idle;
+  return slots[(Number(agent.slotIndex)||0)%slots.length];
+}
+
+function prepareAgents(apiAgents){
+  const enriched=apiAgents.slice(0,4).map(enrichAgent);
+  const grouped={coffee:[],idle:[],meeting:[]};
+  enriched.forEach(a=>{if(grouped[a.status]) grouped[a.status].push(a)});
+  Object.values(grouped).forEach(group=>{
+    group.sort((a,b)=>String(a.id||a.name).localeCompare(String(b.id||b.name)));
+    group.forEach((a,i)=>a.slotIndex=i);
   });
+  state.agents=enriched.map((agent,index)=>{
+    const previous=state.agents.find(x=>x.id===agent.id);
+    const target=targetFor(agent);
+    return {
+      ...agent,
+      x:previous?previous.x:target.x,y:previous?previous.y:target.y,
+      targetX:target.x,targetY:target.y,
+      walkSeed:previous?.walkSeed ?? Math.random()*10,
+      bubbleSeed:previous?.bubbleSeed ?? Math.floor(Math.random()*100),
+      direction:previous?.direction||target.direction||"down"
+    };
+  });
+}
 
-  setInterval(updateData, 10000);
-  updateData();
-  draw();
+function loadOfficeData(){
+  const callbackName=`officeCallback_${Date.now()}`;
+  window[callbackName]=function(data){
+    try{
+      if(!data||!data.ok) throw new Error(data?.error||"ไม่สามารถอ่านข้อมูลได้");
+      state.office={...state.office,...data.office};
+      state.lastUpdated=data.updated_at||"";
+      prepareAgents(data.agents||[]);
+      updateInterface();
+      setConnection("online","เชื่อมต่อแล้ว");
+    }catch(error){
+      setConnection("error","เชื่อมต่อไม่สำเร็จ"); console.error(error);
+    }finally{
+      script.remove(); delete window[callbackName];
+    }
+  };
+  const script=document.createElement("script");
+  script.src=`${API_URL}?action=office&callback=${callbackName}&_=${Date.now()}`;
+  script.onerror=()=>{setConnection("error","เชื่อมต่อไม่สำเร็จ");script.remove();delete window[callbackName]};
+  document.body.appendChild(script);
+}
+
+function setConnection(type,text){
+  const e=document.getElementById("connection");
+  e.className=`connection ${type}`;
+  document.getElementById("connectionText").textContent=text;
+}
+
+function updateInterface(){
+  document.getElementById("officeName").textContent=state.office.name;
+  document.getElementById("tagline").textContent=state.office.tagline;
+  const working=state.agents.filter(a=>a.status==="working").length;
+  const onBreak=state.agents.filter(a=>["coffee","idle"].includes(a.status)).length;
+  const average=state.agents.length?Math.round(state.agents.reduce((s,a)=>s+a.progress,0)/state.agents.length):0;
+  document.getElementById("workingCount").textContent=working;
+  document.getElementById("breakCount").textContent=onBreak;
+  document.getElementById("progressCount").textContent=`${average}%`;
+}
+
+function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function text(v,x,y,size,color="#405b75",align="left"){
+  ctx.fillStyle=color;ctx.font=`bold ${size}px "Trebuchet MS","Noto Sans Thai",Tahoma,sans-serif`;
+  ctx.textAlign=align;ctx.textBaseline="middle";ctx.fillText(v,x,y)
+}
+function roundRect(x,y,w,h,r,fill,stroke){
+  ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill()}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}
+}
+
+function drawPlant(x,y,scale=1){
+  rect(x+8*scale,y+22*scale,20*scale,15*scale,"#c89172");
+  rect(x+4*scale,y+5*scale,10*scale,22*scale,"#78c99c");
+  rect(x+16*scale,y+1*scale,12*scale,25*scale,"#62b88b");
+  rect(x+27*scale,y+8*scale,10*scale,18*scale,"#8bd3a9");
+}
+
+function drawDesk(x,y,accent,label){
+  // desk
+  roundRect(x-75,y-24,150,58,7,"#d9aa78","#a97859");
+  rect(x-68,y-18,136,45,"#f0c992");
+  // monitor
+  roundRect(x-31,y-53,62,34,4,"#52677a","#364957");
+  rect(x-25,y-47,50,22,accent);
+  rect(x-8,y-19,16,7,"#5c4f4b");
+  // keyboard
+  roundRect(x-24,y-8,48,8,2,"#e8eef2","#aebbc4");
+  // chair
+  roundRect(x-25,y+34,50,19,6,"#a9cfe5","#7da7c0");
+  rect(x-5,y+51,10,16,"#718b9d");
+  text(label,x,y+12,8,"#755f55","center");
+}
+
+function drawCoffeeCorner(){
+  roundRect(600,55,320,145,16,"#eef9f6","#bfe7db");
+  text("☕ COFFEE CORNER",760,76,13,"#4f887a","center");
+  roundRect(635,98,95,70,10,"#d9eef8","#a7cddd");
+  roundRect(652,109,61,38,6,"#657887","#495c69");
+  rect(662,116,41,23,"#dff5ff");
+  roundRect(750,102,130,28,7,"#f7dfad","#d2b27a");
+  roundRect(760,138,34,22,7,"#f6c6dc","#c99aae");
+  roundRect(805,138,34,22,7,"#bfe6d7","#91bcae");
+  drawPlant(865,102,.8);
+}
+
+function drawMeetingRoom(){
+  roundRect(25,350,230,210,16,"#f1f5ff","#c9d9ed");
+  text("MEETING ROOM",140,371,13,"#657f9a","center");
+  roundRect(58,405,165,78,18,"#d7b58e","#b48b68");
+  rect(76,419,129,49,"#f0d0a6");
+  for(let i=0;i<2;i++){
+    roundRect(65+i*95,495,72,32,10,"#a9cce0","#7da5bd");
+  }
+}
+
+function drawChillCorner(){
+  roundRect(600,350,320,210,16,"#eff9f5","#c8e7db");
+  text("♡ CHILL CORNER",760,371,13,"#568979","center");
+  roundRect(660,415,170,75,18,"#9dc9dd","#79aabb");
+  roundRect(646,402,55,95,16,"#b5d8e7","#8cb8c9");
+  roundRect(815,402,55,95,16,"#b5d8e7","#8cb8c9");
+  roundRect(690,488,115,32,16,"#ffe4a8","#d6b86d");
+  drawPlant(850,505,.9);
+}
+
+function drawHandoffBoard(){
+  roundRect(275,55,295,125,10,"#c49368","#93684d");
+  roundRect(285,65,275,105,5,"#fffaf0","#e6d7bd");
+  text("AI HANDOFF",422,82,13,"#80644f","center");
+  const agents=state.agents.filter(a=>a.progress>=100).slice(0,4);
+  agents.forEach((a,i)=>{
+    const y=105+i*15;
+    text(a.name||"AI Agent",305,y,9,"#50657a","left");
+    roundRect(382,y-5,125,10,5,"#e7f0f5","#cbdde8");
+    roundRect(383,y-4,123,8,4,"#78d1a9");
+    text("100%",535,y,8,"#4d9274","right");
+  });
+}
+
+function drawWindows(){
+  for(let i=0;i<4;i++){
+    const x=25+i*140;
+    roundRect(x,8,110,55,6,"#dff3ff","#a9d2e6");
+    rect(x+8,16,94,39,"#c8eafb");
+    rect(x+54,16,3,39,"#a9d2e6");
+  }
+}
+
+function drawRoom(){
+  rect(0,0,W,H,"#f9f6ef");
+  // subtle tile floor
+  for(let y=0;y<H;y+=32) rect(0,y,W,1,"#e8e1d8");
+  for(let x=0;x<W;x+=32) rect(x,0,1,H,"#eee7df");
+  // top wall
+  rect(0,0,W,75,"#e9f2fa");
+  drawWindows();
+  drawHandoffBoard();
+  drawCoffeeCorner();
+  drawMeetingRoom();
+  drawChillCorner();
+
+  // open workspace
+  roundRect(260,195,305,330,18,"#f7fbff","#d8e6ef");
+  text("OPEN WORKSPACE",412,214,12,"#6c8498","center");
+
+  drawDesk(340,275,"#8ecaff","พี่โค้ด");
+  drawDesk(510,275,"#ffc873","ลุงคิด");
+  drawDesk(340,455,"#9cddc7","น้องปั้น");
+  drawDesk(510,455,"#9fcfff","น้องเกลา");
+
+  drawPlant(270,235,.7); drawPlant(535,235,.7);
+  drawPlant(270,490,.7); drawPlant(535,490,.7);
+
+  // decorative shelves
+  roundRect(25,85,215,225,14,"#fffaf2","#ead8c5");
+  text("AI LIBRARY",132,106,11,"#8a7565","center");
+  for(let i=0;i<3;i++){
+    rect(50,135+i*48,160,6,"#b98c6f");
+    for(let j=0;j<8;j++) rect(55+j*18,118+i*48,11,16,["#9ed2ff","#c9f1e4","#ffe49b","#ffd5e3"][j%4]);
+  }
+  drawPlant(190,235,.8);
+  roundRect(25,580-75,215,65,14,"#f4f9ff","#d5e5f1");
+  text("AI TOOL STATION",132,527,10,"#70889d","center");
+  roundRect(60,542,65,25,5,"#c8eafb","#9dc7dd");
+  roundRect(140,542,65,25,5,"#d7f2e7","#a8d4c2");
+}
+
+function drawSpeechBubble(agent){
+  if(!state.office.show_speech_bubbles) return;
+  const cycle=Math.floor((state.time+agent.bubbleSeed)/6);
+  if(cycle%3!==0) return;
+  const messages=statusBubbles[agent.status]||statusBubbles.idle;
+  const msg=messages[cycle%messages.length];
+  const bw=Math.max(70,msg.length*6.5+18);
+  roundRect(agent.x-bw/2,agent.y-67,bw,23,7,"#fff","#d9e7f0");
+  text(msg,agent.x,agent.y-55,8,"#5e758a","center");
+}
+
+function spriteFor(agent){
+  return spriteImages[agent.character]||spriteImages.code;
+}
+
+function directionRow(dir){
+  return ({down:0,left:1,right:2,up:3}[dir]??0);
+}
+
+function drawAgent(agent){
+  const img=spriteFor(agent);
+  const moving=Math.abs(agent.targetX-agent.x)>1||Math.abs(agent.targetY-agent.y)>1;
+  const frame=moving?Math.floor(state.time*8+agent.walkSeed)%3:1;
+  const row=directionRow(agent.direction);
+  const sx=(row*3+frame)*32, sy=0;
+  const scale=1.8;
+  const dw=32*scale,dh=32*scale;
+  const x=Math.round(agent.x-dw/2),y=Math.round(agent.y-dh+8);
+  if(img.complete) ctx.drawImage(img,sx,sy,32,32,x,y,dw,dh);
+
+  // status badge
+  const icon={working:"⌨",coffee:"☕",meeting:"✦",idle:"z",blocked:"?"}[agent.status]||"·";
+  roundRect(agent.x+25,agent.y-47,20,20,7,"#fff","#dce8ef");
+  text(icon,agent.x+35,agent.y-37,10,"#60798e","center");
+
+  // name plate
+  const label=agent.name||"AI Agent";
+  const w=Math.max(68,label.length*7+18);
+  roundRect(agent.x-w/2,agent.y+16,w,19,6,"rgba(255,255,255,.94)","#dbe8f0");
+  text(label,agent.x,agent.y+26,8,"#50677d","center");
+  drawSpeechBubble(agent);
+}
+
+function updateAgents(delta){
+  state.agents.forEach(agent=>{
+    const target=targetFor(agent);
+    agent.targetX=target.x;agent.targetY=target.y;
+    const dx=agent.targetX-agent.x,dy=agent.targetY-agent.y;
+    const dist=Math.hypot(dx,dy);
+    if(dist>1){
+      const move=Math.min(dist,48*delta);
+      agent.x+=(dx/dist)*move;agent.y+=(dy/dist)*move;
+      agent.direction=Math.abs(dx)>Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up");
+    }else agent.direction=target.direction||agent.direction;
+  });
+}
+
+let lastFrame=performance.now();
+function render(now){
+  const delta=Math.min((now-lastFrame)/1000,.05);lastFrame=now;state.time+=delta;
+  updateAgents(delta);drawRoom();
+  [...state.agents].sort((a,b)=>a.y-b.y).forEach(drawAgent);
+  requestAnimationFrame(render);
+}
+
+function selectAgent(agent){
+  state.selectedAgent=agent;
+  document.getElementById("agentAvatar").textContent=
+    ({code:"💻",analyst:"📊",artist:"🎨",editor:"📝"}[agent.character]||"✨");
+  document.getElementById("agentAvatar").style.setProperty("--avatar-color",
+    ({code:"#dfe7f0",analyst:"#ffe0b8",artist:"#d8f5eb",editor:"#dff0ff"}[agent.character]||"#dff2ff"));
+  document.getElementById("agentName").textContent=agent.name||"AI Agent";
+  document.getElementById("agentRole").textContent=agent.role||"-";
+  document.getElementById("agentStatus").textContent=statusLabels[agent.status]||"กำลังพัก";
+  document.getElementById("agentTask").textContent=agent.task||"ยังไม่มีงานที่ระบุ";
+  document.getElementById("agentProgressText").textContent=`${agent.progress}%`;
+  document.getElementById("agentProgressFill").style.width=`${agent.progress}%`;
+  document.getElementById("agentUpdatedAt").textContent=agent.updated_at||state.lastUpdated||"-";
+  document.getElementById("modalBackdrop").classList.add("show");
+}
+
+canvas.addEventListener("click",event=>{
+  const b=canvas.getBoundingClientRect();
+  const x=((event.clientX-b.left)/b.width)*W,y=((event.clientY-b.top)/b.height)*H;
+  const clicked=[...state.agents].reverse().find(a=>Math.hypot(x-a.x,y-a.y)<38);
+  if(clicked) selectAgent(clicked);
+});
+document.getElementById("closeModal").addEventListener("click",()=>document.getElementById("modalBackdrop").classList.remove("show"));
+document.getElementById("modalBackdrop").addEventListener("click",e=>{
+  if(e.target.id==="modalBackdrop") document.getElementById("modalBackdrop").classList.remove("show");
+});
+
+requestAnimationFrame(render);
+loadOfficeData();
+setInterval(loadOfficeData,20000);
 </script>
+
 </body>
 </html>
