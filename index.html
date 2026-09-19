@@ -5,27 +5,19 @@
   <title>PaenLaen's Office - Command Center</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-    :root {
-      --bg: #1a1c2c; --panel: #282c44; --text: #e0e0e0; --accent: #6c5ce7;
-    }
+    :root { --bg: #1a1c2c; --panel: #282c44; --text: #e0e0e0; }
     body { background: var(--bg); color: var(--text); font-family: 'Press Start 2P', cursive; margin: 0; display: flex; height: 100vh; overflow: hidden; }
     
-    /* Sidebar */
     nav { width: 220px; background: var(--panel); border-right: 4px solid #141620; display: flex; flex-direction: column; padding: 20px; gap: 10px; }
-    .menu-item { padding: 15px; cursor: pointer; color: #888; font-size: 0.6rem; transition: 0.2s; }
+    .menu-item { padding: 15px; cursor: pointer; color: #888; font-size: 0.6rem; }
     .menu-item:hover, .menu-item.active { color: var(--text); background: #353b5a; }
 
-    /* Main Area */
-    main { flex: 1; display: flex; flex-direction: column; padding: 20px; gap: 20px; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; }
-    .kpi-row { font-size: 0.7rem; color: #aaa; }
+    main { flex: 1; display: flex; flex-direction: column; padding: 20px; gap: 10px; }
+    #officeCanvas { background: #bdc3c7; border: 4px solid #fff; image-rendering: pixelated; width: 100%; max-width: 800px; margin: 0 auto; cursor: pointer; }
     
-    #officeCanvas { background: #dcdde1; border: 4px solid #fff; image-rendering: pixelated; width: 100%; max-width: 700px; }
-
-    /* Right Panel */
     aside { width: 280px; background: var(--panel); padding: 20px; border-left: 4px solid #141620; }
     .profile-card { text-align: center; }
-    .avatar-lg { width: 80px; height: 80px; background: #fff; margin: 0 auto 10px; display: grid; place-items: center; font-size: 40px; border: 4px solid #333; }
+    .avatar-lg { width: 80px; height: 80px; background: #fff; margin: 0 auto 10px; display: grid; place-items: center; font-size: 40px; border: 4px solid #333; color: #333; }
   </style>
 </head>
 <body>
@@ -35,24 +27,23 @@
   <div class="menu-item active">🏢 Office HQ</div>
   <div class="menu-item">👥 AI Agents</div>
   <div class="menu-item">📝 Projects</div>
-  <div class="menu-item">☕ Coffee Bar</div>
 </nav>
 
 <main>
-  <div class="top-bar">
-    <h1 style="font-size: 1rem;">PaenLaen's Office</h1>
-    <div class="kpi-row">👩‍💻 <span id="wCount">0</span> | ☕ <span id="bCount">0</span> | ✨ <span id="pCount">0%</span></div>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1 style="font-size: 0.9rem;">PaenLaen's Office</h1>
+    <div style="font-size: 0.6rem;">👩‍💻 <span id="wCount">0</span> | ☕ <span id="bCount">0</span> | ✨ <span id="pCount">0%</span></div>
   </div>
-  <canvas id="officeCanvas" width="700" height="450"></canvas>
-  <div id="footer" style="font-size: 0.6rem; color: #666;">Working Agents 0/4</div>
+  <canvas id="officeCanvas" width="800" height="450"></canvas>
+  <div style="font-size: 0.6rem; color: #666; text-align: center;">Working Agents <span id="workingAgents">0</span>/4</div>
 </main>
 
-<aside id="infoPanel">
+<aside>
   <div class="profile-card">
     <div class="avatar-lg" id="sideAvatar">👤</div>
-    <h2 id="sideName" style="font-size: 0.8rem;">Select Agent</h2>
-    <p id="sideRole" style="font-size: 0.6rem; color: #aaa;">-</p>
-    <div id="sideTask" style="font-size: 0.6rem; margin-top: 20px;">Please click on an agent in the office.</div>
+    <h2 id="sideName" style="font-size: 0.7rem;">Select Agent</h2>
+    <p id="sideRole" style="font-size: 0.5rem; color: #aaa;"></p>
+    <div id="sideTask" style="font-size: 0.6rem; margin-top: 20px; line-height: 1.5;">Please click on an agent.</div>
   </div>
 </aside>
 
@@ -63,64 +54,58 @@
   
   let agents = [];
 
-  // ฟังก์ชันวาด (ปรับปรุงให้เข้ากับธีมใหม่)
-  function render() {
-    ctx.clearRect(0, 0, 700, 450);
-    // วาดพื้นหลังออฟฟิศ
-    ctx.fillStyle = '#bdc3c7'; ctx.fillRect(0,0,700,450);
-    // วาดโต๊ะ 4 ตัวอย่างง่าย
-    drawDesks();
-    // วาด AI
-    agents.forEach(a => drawAgent(a));
-    requestAnimationFrame(render);
-  }
+  // ตำแหน่งโต๊ะ 4 ตัว
+  const deskPositions = [
+    {x: 200, y: 120}, {x: 500, y: 120},
+    {x: 200, y: 300}, {x: 500, y: 300}
+  ];
 
-  function drawDesks() {
+  function draw() {
+    ctx.clearRect(0, 0, 800, 450);
+    // วาดโต๊ะ
     ctx.fillStyle = '#d35400';
-    [ {x:150, y:120}, {x:450, y:120}, {x:150, y:300}, {x:450, y:300} ].forEach(d => {
-      ctx.fillRect(d.x, d.y, 100, 60);
+    deskPositions.forEach(d => ctx.fillRect(d.x, d.y, 100, 60));
+
+    // วาดตัวละครจากข้อมูลที่ดึงมา
+    agents.forEach((a, i) => {
+      const pos = deskPositions[i % 4];
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(pos.x + 50, pos.y + 30, 15, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#000'; ctx.font = '8px Arial'; ctx.textAlign = 'center';
+      ctx.fillText(a.name, pos.x + 50, pos.y + 50);
     });
+    requestAnimationFrame(draw);
   }
 
-  function drawAgent(a) {
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(a.x, a.y, 15, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#000'; ctx.font = '8px Arial'; ctx.textAlign = 'center';
-    ctx.fillText(a.name, a.x, a.y + 30);
-  }
-
-  // เชื่อมต่อข้อมูล
-  async function fetchData() {
+  async function updateData() {
     try {
-      const response = await fetch(API_URL + "?action=office");
-      const data = await response.json();
+      const res = await fetch(API_URL + "?action=office");
+      const data = await res.json();
       agents = data.agents;
-      updateUI();
+      document.getElementById('wCount').textContent = agents.filter(a => a.status === 'working').length;
+      document.getElementById('workingAgents').textContent = agents.filter(a => a.status === 'working').length;
     } catch(e) { console.error(e); }
   }
 
-  function updateUI() {
-    document.getElementById('wCount').textContent = agents.filter(a => a.status === 'working').length;
-    document.getElementById('bCount').textContent = agents.filter(a => a.status !== 'working').length;
-    document.getElementById('footer').textContent = `Working Agents ${agents.filter(a => a.status === 'working').length}/4`;
-  }
-
-  // Interaction
   canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    agents.forEach(a => {
-      if(Math.hypot(a.x - x, a.y - y) < 30) {
+    const x = ((e.clientX - rect.left) / rect.width) * 800;
+    const y = ((e.clientY - rect.top) / rect.height) * 450;
+    
+    agents.forEach((a, i) => {
+      const pos = deskPositions[i % 4];
+      if(Math.hypot(x - (pos.x + 50), y - (pos.y + 30)) < 30) {
         document.getElementById('sideName').textContent = a.name;
         document.getElementById('sideRole').textContent = a.role;
         document.getElementById('sideTask').textContent = a.task;
+        document.getElementById('sideAvatar').textContent = '👤';
       }
     });
   });
 
-  setInterval(fetchData, 10000);
-  render();
+  setInterval(updateData, 10000);
+  updateData();
+  draw();
 </script>
 </body>
 </html>
