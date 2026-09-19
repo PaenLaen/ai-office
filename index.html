@@ -723,7 +723,7 @@
     function drawTaskBoard() {
       roundRect(337, 63, 286, 73, 9, "#b98765", "#895d4c");
       rect(346, 72, 268, 55, "#f8e7c4");
-      text("TODAY'S TINY WINS", 480, 84, 11, "#956551", "center");
+      text("AI HANDOFF", 480, 84, 11, "#956551", "center");
 
       const completed = state.agents
         .filter(agent => agent.progress >= 70)
@@ -775,9 +775,9 @@
       roundRect(127, 215, 712, 152, 25, "#f7eee1", "#ead6c6");
 
       // โต๊ะทำงาน
-      drawDesk(220, 240, "Programmer", "#f7b3c9");
-      drawDesk(480, 240, "Photographer", "#a8d6eb");
-      drawDesk(735, 240, "Editor", "#f4d77e");
+      drawDesk(220, 240, "CODER", "#f7b3c9");
+      drawDesk(480, 240, "ARTIST", "#a8d6eb");
+      drawDesk(735, 240, "EDITOR", "#f4d77e");
 
       // ของตกแต่ง
       drawPlant(54, 175);
