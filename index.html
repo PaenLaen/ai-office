@@ -474,12 +474,44 @@
     };
 
     const locations = {
-      desk_1: { x: 220, y: 282, direction: "up" },
-      desk_2: { x: 480, y: 282, direction: "up" },
-      desk_3: { x: 735, y: 282, direction: "up" },
-      coffee: { x: 125, y: 486, direction: "right" },
-      meeting: { x: 715, y: 486, direction: "up" },
-      chill: { x: 388, y: 500, direction: "down" }
+      desk_1: { x: 165, y: 282, direction: "up" },
+      desk_2: { x: 385, y: 282, direction: "up" },
+      desk_3: { x: 605, y: 282, direction: "up" },
+      desk_4: { x: 800, y: 282, direction: "up" }
+    };
+    
+    /*
+      จุดยืนสำหรับพื้นที่ส่วนกลาง
+      คนที่อยู่สถานะเดียวกันจะได้รับจุดยืนคนละจุด
+      จึงไม่เดินไปซ้อนทับกัน
+    */
+    const sharedSlots = {
+      coffee: [
+        { x: 118, y: 545, direction: "up" },
+        { x: 174, y: 545, direction: "up" },
+        { x: 119, y: 475, direction: "right" },
+        { x: 180, y: 455, direction: "left" },
+        { x: 150, y: 510, direction: "down" },
+        { x: 205, y: 535, direction: "left" }
+      ],
+    
+      idle: [
+        { x: 320, y: 545, direction: "right" },
+        { x: 380, y: 545, direction: "up" },
+        { x: 450, y: 545, direction: "left" },
+        { x: 325, y: 475, direction: "right" },
+        { x: 390, y: 475, direction: "down" },
+        { x: 470, y: 475, direction: "left" }
+      ],
+    
+      meeting: [
+        { x: 675, y: 450, direction: "down" },
+        { x: 755, y: 450, direction: "down" },
+        { x: 675, y: 540, direction: "up" },
+        { x: 755, y: 540, direction: "up" },
+        { x: 835, y: 495, direction: "left" },
+        { x: 615, y: 495, direction: "right" }
+      ]
     };
 
     const palettes = {
@@ -513,40 +545,81 @@
 
     function targetFor(agent) {
       const status = normalizeStatus(agent.status);
-
+    
+      // ทำงานหรือมีปัญหา: กลับไปโต๊ะประจำ
       if (status === "working" || status === "blocked") {
         return locations[agent.desk_id] || locations.desk_1;
       }
-
-      if (status === "coffee") return locations.coffee;
-      if (status === "meeting") return locations.meeting;
-      return locations.chill;
+    
+      // Coffee, Meeting และ Idle:
+      // ใช้ slotIndex ที่ระบบกำหนดให้ เพื่อไม่ให้ตัวละครยืนทับกัน
+      const slots = sharedSlots[status] || sharedSlots.idle;
+      const slotIndex = Number(agent.slotIndex || 0);
+    
+      return slots[slotIndex % slots.length];
     }
 
     function prepareAgents(apiAgents) {
       const fallbackPositions = [
-        { x: 220, y: 380 },
-        { x: 480, y: 390 },
-        { x: 735, y: 385 }
+        { x: 165, y: 380 },
+        { x: 385, y: 390 },
+        { x: 605, y: 385 },
+        { x: 800, y: 390 }
       ];
-
+    
+      /*
+        จัดกลุ่มคนตามสถานะ เพื่อแจกตำแหน่งในพื้นที่ส่วนกลาง
+        เรียงตาม id เพื่อให้แต่ละคนได้จุดเดิมอย่างสม่ำเสมอ
+      */
+      const groupedAgents = {
+        coffee: [],
+        idle: [],
+        meeting: []
+      };
+    
+      apiAgents.forEach(agent => {
+        const status = normalizeStatus(agent.status);
+    
+        if (groupedAgents[status]) {
+          groupedAgents[status].push(agent);
+        }
+      });
+    
+      Object.values(groupedAgents).forEach(group => {
+        group.sort((a, b) =>
+          String(a.id || "").localeCompare(String(b.id || ""))
+        );
+    
+        group.forEach((agent, index) => {
+          agent.slotIndex = index;
+        });
+      });
+    
       state.agents = apiAgents.map((agent, index) => {
         const previous = state.agents.find(item => item.id === agent.id);
         const fallback = fallbackPositions[index % fallbackPositions.length];
-        const target = targetFor(agent);
-
-        return {
+    
+        const preparedAgent = {
           ...agent,
           status: normalizeStatus(agent.status),
           progress: Math.max(0, Math.min(100, Number(agent.progress) || 0)),
+          slotIndex: Number(agent.slotIndex || 0),
           x: previous ? previous.x : fallback.x,
           y: previous ? previous.y : fallback.y,
-          targetX: target.x,
-          targetY: target.y,
           walkSeed: previous ? previous.walkSeed : Math.random() * 10,
-          bubbleSeed: previous ? previous.bubbleSeed : Math.floor(Math.random() * 100),
-          direction: target.direction || "down"
+          bubbleSeed: previous
+            ? previous.bubbleSeed
+            : Math.floor(Math.random() * 100),
+          direction: "down"
         };
+    
+        const target = targetFor(preparedAgent);
+    
+        preparedAgent.targetX = target.x;
+        preparedAgent.targetY = target.y;
+        preparedAgent.direction = target.direction || "down";
+    
+        return preparedAgent;
       });
     }
 
@@ -772,12 +845,13 @@
       drawTaskBoard();
 
       // พรม
-      roundRect(127, 215, 712, 152, 25, "#f7eee1", "#ead6c6");
+      roundRect(75, 215, 820, 152, 25, "#f7eee1", "#ead6c6");
 
-      // โต๊ะทำงาน
-      drawDesk(220, 240, "CODER", "#f7b3c9");
-      drawDesk(480, 240, "ARTIST", "#a8d6eb");
-      drawDesk(735, 240, "EDITOR", "#f4d77e");
+     // โต๊ะทำงาน 4 โต๊ะ      
+      drawDesk(165, 240, "CODER", "#f7b3c9");
+      drawDesk(385, 240, "ARTIST", "#a8d6eb");
+      drawDesk(605, 240, "EDITOR", "#f4d77e");
+      drawDesk(800, 240, "ANALYSIS", "#aee3d3");
 
       // ของตกแต่ง
       drawPlant(54, 175);
