@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PaenLaen's Office · Admin</title>
+
+  <style>
+    :root {
+      --ink: #5e4d57;
+      --muted: #927b87;
+      --cream: #fffaf2;
+      --pink: #f6b6ca;
+      --mint: #afe2d2;
+      --yellow: #ffe397;
+      --line: #ecd9cd;
+      --danger: #d96e82;
+      --success: #4aaf8b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Noto Sans Thai", Tahoma, sans-serif;
+      background:
+        radial-gradient(circle at 8% 5%, #ffdbe5 0, transparent 23rem),
+        radial-gradient(circle at 95% 3%, #c9f0e2 0, transparent 25rem),
+        #fff6e9;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .page {
+      width: min(960px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 45px;
+    }
+
+    .header {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .logo {
+      display: grid;
+      width: 55px;
+      height: 55px;
+      place-items: center;
+      font-size: 27px;
+      background: #fff;
+      border: 3px solid #fff;
+      border-radius: 18px;
+      box-shadow: 0 5px 0 #e9cbd3, 0 10px 24px rgba(111, 74, 87, .12);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.35rem, 4vw, 1.9rem);
+      letter-spacing: -.04em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .panel {
+      padding: 22px;
+      background: rgba(255, 253, 248, .9);
+      border: 4px solid #fff;
+      border-radius: 24px;
+      box-shadow: 0 16px 45px rgba(115, 77, 89, .13);
+    }
+
+    .login-panel {
+      width: min(430px, 100%);
+      margin: 10vh auto 0;
+      text-align: center;
+    }
+
+    .login-panel h2 { margin: 0 0 8px; }
+    .login-panel p { margin: 0 0 18px; color: var(--muted); font-size: .9rem; }
+
+    label {
+      display: block;
+      margin: 0 0 7px;
+      color: #846c77;
+      font-size: .8rem;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 11px 12px;
+      color: var(--ink);
+      background: #fffdf9;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #e79cb3;
+      box-shadow: 0 0 0 4px rgba(231, 156, 179, .16);
+    }
+
+    textarea {
+      min-height: 78px;
+      resize: vertical;
+    }
+
+    .button {
+      width: 100%;
+      padding: 12px 15px;
+      color: #684f5a;
+      font-weight: bold;
+      cursor: pointer;
+      background: #ffd7e2;
+      border: 0;
+      border-radius: 13px;
+      box-shadow: 0 4px 0 #e9a5b9;
+    }
+
+    .button:hover { filter: brightness(.98); }
+    .button:active { transform: translateY(3px); box-shadow: 0 1px 0 #e9a5b9; }
+    .button:disabled { cursor: wait; opacity: .65; }
+
+    .button.secondary {
+      width: auto;
+      color: #61776e;
+      background: #d7f0e6;
+      box-shadow: 0 4px 0 #9bcfbf;
+    }
+
+    .error, .notice {
+      display: none;
+      margin-top: 13px;
+      padding: 10px 12px;
+      font-size: .84rem;
+      border-radius: 11px;
+    }
+
+    .error {
+      color: #9b4054;
+      background: #ffe2e8;
+    }
+
+    .notice {
+      color: #347c63;
+      background: #dff6eb;
+    }
+
+    .admin-content { display: none; }
+    .admin-content.show { display: block; }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .toolbar p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .agent-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 11px;
+      margin-bottom: 18px;
+    }
+
+    .agent-card {
+      padding: 14px;
+      text-align: left;
+      cursor: pointer;
+      background: #fffdf9;
+      border: 2px solid transparent;
+      border-radius: 16px;
+    }
+
+    .agent-card:hover { background: #fff7f8; }
+    .agent-card.active { border-color: #efa8bd; background: #fff1f5; }
+
+    .agent-card strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .agent-card span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: .76rem;
+    }
+
+    .status-pill {
+      display: inline-block !important;
+      margin-top: 9px !important;
+      padding: 4px 7px;
+      color: #715b66 !important;
+      background: #f5e8df;
+      border-radius: 999px;
+    }
+
+    .editor-title {
+      margin: 0 0 18px;
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field { margin-bottom: 14px; }
+    .full { grid-column: 1 / -1; }
+
+    .progress-line {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      padding: 0;
+      accent-color: #e992ad;
+    }
+
+    #progressValue {
+      min-width: 42px;
+      color: #9d6978;
+      font-weight: bold;
+      text-align: right;
+    }
+
+    .save-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .save-row .button { width: auto; min-width: 175px; }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 19px;
+      color: #8e6977;
+      font-size: .85rem;
+      text-decoration: none;
+    }
+
+    @media (max-width: 650px) {
+      .page { width: min(100% - 18px, 960px); padding-top: 17px; }
+      .panel { padding: 17px; }
+      .agent-list { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .full { grid-column: auto; }
+      .toolbar { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header class="header">
+      <div class="logo">🔐</div>
+      <div>
+        <h1>PaenLaen's Office · Admin</h1>
+        <p class="subtitle">อัปเดตสถานะทีมตัวจิ๋วของคุณ</p>
+      </div>
+    </header>
+
+    <section class="panel login-panel" id="loginPanel">
+      <h2>Welcome back! ✦</h2>
+      <p>กรอกรหัสผ่านเพื่อเข้าสู่หน้าจัดการสถานะ</p>
+
+      <form id="loginForm">
+        <label for="password">รหัสผ่าน</label>
+        <input id="password" type="password" inputmode="numeric" autocomplete="current-password" required />
+        <div style="height: 14px"></div>
+        <button class="button" type="submit">เข้าสู่หน้าจัดการ</button>
+        <div class="error" id="loginError"></div>
+      </form>
+    </section>
+
+    <section class="admin-content" id="adminContent">
+      <div class="toolbar">
+        <p id="lastUpdated">กำลังโหลดข้อมูล...</p>
+        <button class="button secondary" id="reloadButton" type="button">↻ โหลดข้อมูลใหม่</button>
+      </div>
+
+      <div class="agent-list" id="agentList"></div>
+
+      <section class="panel">
+        <h2 class="editor-title" id="editorTitle">เลือกตัวละครที่ต้องการแก้ไข</h2>
+
+        <form id="agentForm">
+          <div class="grid">
+            <div class="field">
+              <label for="status">สถานะ</label>
+              <select id="status" required>
+                <option value="working">⌨️ กำลังทำงาน</option>
+                <option value="coffee">☕ พักดื่มกาแฟ</option>
+                <option value="meeting">🗒️ อยู่ในที่ประชุม</option>
+                <option value="idle">🛋️ กำลังพัก</option>
+                <option value="blocked">💭 งานติดขัด</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="progress">ความคืบหน้า</label>
+              <div class="progress-line">
+                <input id="progress" type="range" min="0" max="100" value="0" />
+                <span id="progressValue">0%</span>
+              </div>
+            </div>
+
+            <div class="field full">
+              <label for="task">งานที่กำลังทำ</label>
+              <input id="task" type="text" maxlength="150" placeholder="เช่น ออกแบบหน้า Landing Page" />
+            </div>
+
+            <div class="field full">
+              <label for="note">บันทึกเพิ่มเติมในประวัติ (ไม่แสดงบนหน้าเกม)</label>
+              <textarea id="note" maxlength="300" placeholder="เช่น ปรับ mobile layout เรียบร้อยแล้ว"></textarea>
+            </div>
+          </div>
+
+          <div class="save-row">
+            <button class="button" id="saveButton" type="submit">บันทึกสถานะ ✦</button>
+            <span class="notice" id="saveNotice"></span>
+            <span class="error" id="saveError"></span>
+          </div>
+        </form>
+      </section>
+
+      <a class="back-link" href="./index.html">← กลับไปดู PaenLaen's Office</a>
+    </section>
+  </main>
+
+  <script>
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbxSUzPtHByx6hMhv1BXqHwZcTTgldom4LBz7JtzZvFWpKSMfELrJ0SB4uUzOxUB6_wH/exec";
+
+    const statusLabels = {
+      working: "⌨️ กำลังทำงาน",
+      coffee: "☕ พักดื่มกาแฟ",
+      meeting: "🗒️ อยู่ในที่ประชุม",
+      idle: "🛋️ กำลังพัก",
+      blocked: "💭 งานติดขัด"
+    };
+
+    let adminPassword = "";
+    let agents = [];
+    let selectedAgentId = "";
+
+    const loginPanel = document.getElementById("loginPanel");
+    const adminContent = document.getElementById("adminContent");
+    const loginError = document.getElementById("loginError");
+    const saveError = document.getElementById("saveError");
+    const saveNotice = document.getElementById("saveNotice");
+
+    function showMessage(element, message) {
+      element.textContent = message;
+      element.style.display = "inline-block";
+    }
+
+    function hideMessage(element) {
+      element.textContent = "";
+      element.style.display = "none";
+    }
+
+    function loadOfficeData() {
+      return new Promise((resolve, reject) => {
+        const callbackName = `adminCallback_${Date.now()}`;
+
+        window[callbackName] = data => {
+          script.remove();
+          delete window[callbackName];
+
+          if (!data || !data.ok) {
+            reject(new Error(data?.error || "ไม่สามารถโหลดข้อมูลได้"));
+            return;
+          }
+
+          resolve(data);
+        };
+
+        const script = document.createElement("script");
+        script.src = `${API_URL}?action=office&callback=${callbackName}&_=${Date.now()}`;
+
+        script.onerror = () => {
+          script.remove();
+          delete window[callbackName];
+          reject(new Error("เชื่อมต่อข้อมูลไม่สำเร็จ"));
+        };
+
+        document.body.appendChild(script);
+      });
+    }
+
+    async function refreshAgents() {
+      const data = await loadOfficeData();
+      agents = data.agents || [];
+
+      document.getElementById("lastUpdated").textContent =
+        `อัปเดตข้อมูลล่าสุด: ${data.updated_at || "-"}`;
+
+      if (!selectedAgentId && agents.length) {
+        selectedAgentId = agents[0].id;
+      }
+
+      if (!agents.some(agent => agent.id === selectedAgentId) && agents.length) {
+        selectedAgentId = agents[0].id;
+      }
+
+      renderAgentList();
+      fillEditor();
+    }
+
+    function renderAgentList() {
+      const list = document.getElementById("agentList");
+      list.innerHTML = "";
+
+      agents.forEach(agent => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `agent-card ${agent.id === selectedAgentId ? "active" : ""}`;
+
+        button.innerHTML = `
+          <strong>${escapeHtml(agent.name || "AI Agent")}</strong>
+          <span>${escapeHtml(agent.role || "-")}</span>
+          <span class="status-pill">${statusLabels[agent.status] || "🛋️ กำลังพัก"}</span>
+        `;
+
+        button.addEventListener("click", () => {
+          selectedAgentId = agent.id;
+          renderAgentList();
+          fillEditor();
+          hideMessage(saveNotice);
+          hideMessage(saveError);
+        });
+
+        list.appendChild(button);
+      });
+    }
+
+    function fillEditor() {
+      const agent = agents.find(item => item.id === selectedAgentId);
+      if (!agent) return;
+
+      document.getElementById("editorTitle").textContent =
+        `แก้ไขสถานะของ ${agent.name}`;
+
+      document.getElementById("status").value = agent.status || "idle";
+      document.getElementById("task").value = agent.task || "";
+      document.getElementById("progress").value = Number(agent.progress || 0);
+      document.getElementById("progressValue").textContent =
+        `${Number(agent.progress || 0)}%`;
+      document.getElementById("note").value = "";
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    document.getElementById("progress").addEventListener("input", event => {
+      document.getElementById("progressValue").textContent =
+        `${event.target.value}%`;
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      hideMessage(loginError);
+
+      const input = document.getElementById("password");
+      adminPassword = input.value.trim();
+
+      if (!adminPassword) {
+        showMessage(loginError, "กรุณากรอกรหัสผ่าน");
+        return;
+      }
+
+      try {
+        await refreshAgents();
+        loginPanel.style.display = "none";
+        adminContent.classList.add("show");
+      } catch (error) {
+        showMessage(loginError, error.message);
+      }
+    });
+
+    document.getElementById("reloadButton").addEventListener("click", async () => {
+      try {
+        await refreshAgents();
+      } catch (error) {
+        showMessage(saveError, error.message);
+      }
+    });
+
+    document.getElementById("agentForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      hideMessage(saveError);
+      hideMessage(saveNotice);
+
+      const selectedAgent = agents.find(agent => agent.id === selectedAgentId);
+      if (!selectedAgent) {
+        showMessage(saveError, "กรุณาเลือกตัวละครก่อน");
+        return;
+      }
+
+      const saveButton = document.getElementById("saveButton");
+      saveButton.disabled = true;
+      saveButton.textContent = "กำลังบันทึก...";
+
+      const payload = new URLSearchParams({
+        action: "updateAgent",
+        password: adminPassword,
+        agent_id: selectedAgent.id,
+        status: document.getElementById("status").value,
+        task: document.getElementById("task").value.trim(),
+        progress: document.getElementById("progress").value,
+        note: document.getElementById("note").value.trim()
+      });
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: payload
+        });
+
+        const data = await response.json();
+
+        if (!data.ok) {
+          throw new Error(data.error || "บันทึกไม่สำเร็จ");
+        }
+
+        showMessage(saveNotice, "บันทึกแล้ว! หน้า Office จะอัปเดตภายในไม่เกิน 20 วินาที");
+        await refreshAgents();
+      } catch (error) {
+        showMessage(saveError, error.message || "ไม่สามารถบันทึกข้อมูลได้");
+      } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = "บันทึกสถานะ ✦";
+      }
+    });
+  </script>
+</body>
+</html>
