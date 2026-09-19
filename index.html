@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PaenLaen's Office</title>
+
+  <style>
+    :root {
+      --ink: #5e4d57;
+      --muted: #8b7782;
+      --cream: #fffaf0;
+      --pink: #f9bfd1;
+      --mint: #aee3d3;
+      --yellow: #ffe49a;
+      --lavender: #d8c7f0;
+      --line: #ead9ce;
+      --panel: rgba(255, 253, 247, 0.88);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Noto Sans Thai", Tahoma, sans-serif;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(255, 212, 224, 0.75), transparent 25rem),
+        radial-gradient(circle at 90% 0%, rgba(190, 239, 225, 0.7), transparent 27rem),
+        #fff7eb;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      display: grid;
+      width: 50px;
+      height: 50px;
+      place-items: center;
+      font-size: 24px;
+      background: #fff;
+      border: 3px solid #fff;
+      border-radius: 16px;
+      box-shadow: 0 5px 0 #e9cbd3, 0 9px 20px rgba(111, 74, 87, 0.12);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.25rem, 3vw, 1.8rem);
+      letter-spacing: -0.03em;
+    }
+
+    .tagline {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .connection {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 9px 12px;
+      color: #6c5a65;
+      font-size: 0.82rem;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(234, 217, 206, 0.95);
+      border-radius: 999px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      background: #c9b9bd;
+      border-radius: 50%;
+    }
+
+    .connection.online .dot {
+      background: #69c8a6;
+      box-shadow: 0 0 0 4px rgba(105, 200, 166, 0.16);
+    }
+
+    .connection.error .dot {
+      background: #f08b98;
+      box-shadow: 0 0 0 4px rgba(240, 139, 152, 0.14);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      padding: 12px 15px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(234, 217, 206, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 7px 18px rgba(120, 84, 96, 0.06);
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .stat-value {
+      display: block;
+      margin-top: 3px;
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .office-card {
+      position: relative;
+      overflow: hidden;
+      background: #fffdf8;
+      border: 5px solid #fff;
+      border-radius: 25px;
+      box-shadow: 0 16px 45px rgba(115, 77, 89, 0.15);
+    }
+
+    .office-card::before {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 8px;
+      content: "";
+      background: repeating-linear-gradient(
+        90deg,
+        #f4b8cb 0 18px,
+        #ffe295 18px 36px,
+        #ace2d2 36px 54px,
+        #d6c5ee 54px 72px
+      );
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .hint {
+      position: absolute;
+      z-index: 3;
+      right: 14px;
+      bottom: 14px;
+      padding: 8px 11px;
+      color: #745f6a;
+      font-size: 0.76rem;
+      background: rgba(255, 253, 247, 0.84);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      backdrop-filter: blur(5px);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 16px 2px 0;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      padding: 7px 10px;
+      color: #78636d;
+      font-size: 0.76rem;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(234, 217, 206, 0.8);
+      border-radius: 999px;
+    }
+
+    .legend-icon {
+      font-size: 0.9rem;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      z-index: 10;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(80, 60, 68, 0.26);
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      position: relative;
+      width: min(390px, 100%);
+      padding: 23px;
+      background: #fffdf8;
+      border: 4px solid #fff;
+      border-radius: 23px;
+      box-shadow: 0 18px 55px rgba(66, 43, 50, 0.2);
+    }
+
+    .close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      color: #8b6f7c;
+      font-size: 19px;
+      line-height: 1;
+      cursor: pointer;
+      background: #f9e6eb;
+      border: 0;
+      border-radius: 10px;
+    }
+
+    .agent-heading {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding-right: 35px;
+      margin-bottom: 18px;
+    }
+
+    .agent-avatar {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      place-items: center;
+      font-size: 26px;
+      background: var(--avatar-color, var(--pink));
+      border: 3px solid #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 0 rgba(123, 89, 104, 0.14);
+    }
+
+    .agent-heading h2 {
+      margin: 0;
+      font-size: 1.18rem;
+    }
+
+    .agent-role {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .info-row {
+      padding: 11px 0;
+      border-top: 1px dashed #ead9ce;
+    }
+
+    .info-label {
+      display: block;
+      margin-bottom: 3px;
+      color: #a28d97;
+      font-size: 0.73rem;
+      font-weight: bold;
+    }
+
+    .progress-track {
+      height: 10px;
+      overflow: hidden;
+      margin-top: 7px;
+      background: #f3e9df;
+      border-radius: 999px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f6a9c1, #f7d36c);
+      border-radius: inherit;
+    }
+
+    .small-note {
+      margin: 17px 0 0;
+      color: #9b8590;
+      font-size: 0.73rem;
+      text-align: center;
+    }
+
+    @media (max-width: 620px) {
+      .page {
+        width: min(100% - 18px, 1180px);
+        padding-top: 13px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .connection {
+        padding: 8px;
+        font-size: 0;
+      }
+
+      .connection .dot {
+        margin: 2px;
+      }
+
+      .stats {
+        gap: 7px;
+      }
+
+      .stat {
+        padding: 10px;
+      }
+
+      .stat-value {
+        font-size: 1.05rem;
+      }
+
+      .hint {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">🏢</div>
+        <div>
+          <h1 id="officeName">PaenLaen's Office</h1>
+          <p class="tagline" id="tagline">A tiny kawaii workspace, always in motion.</p>
+        </div>
+      </div>
+
+      <div class="connection" id="connection">
+        <span class="dot"></span>
+        <span id="connectionText">กำลังเชื่อมต่อ</span>
+      </div>
+    </header>
+
+    <section class="stats" aria-label="สรุปสถานะออฟฟิศ">
+      <div class="stat">
+        <span class="stat-label">⌨️ กำลังทำงาน</span>
+        <strong class="stat-value" id="workingCount">0</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">☕ กำลังพัก</span>
+        <strong class="stat-value" id="breakCount">0</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">✨ งานเสร็จเฉลี่ย</span>
+        <strong class="stat-value" id="progressCount">0%</strong>
+      </div>
+    </section>
+
+    <section class="office-card">
+      <canvas id="officeCanvas" width="960" height="620" aria-label="ฉากออฟฟิศ AI แบบพิกเซลอาร์ต"></canvas>
+      <div class="hint">คลิกตัวละครเพื่อดูสถานะ ✦</div>
+    </section>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-icon">⌨️</span> ทำงานที่โต๊ะ</span>
+      <span class="legend-item"><span class="legend-icon">☕</span> Coffee Break</span>
+      <span class="legend-item"><span class="legend-icon">🗒️</span> ประชุม</span>
+      <span class="legend-item"><span class="legend-icon">🛋️</span> พักผ่อน</span>
+      <span class="legend-item"><span class="legend-icon">💭</span> ต้องการความช่วยเหลือ</span>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="agentName">
+      <button class="close" id="closeModal" aria-label="ปิด">×</button>
+
+      <div class="agent-heading">
+        <div class="agent-avatar" id="agentAvatar">🌸</div>
+        <div>
+          <h2 id="agentName">Momo</h2>
+          <p class="agent-role" id="agentRole">UX Designer</p>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">สถานะตอนนี้</span>
+        <strong id="agentStatus">กำลังทำงาน</strong>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">งานที่กำลังทำ</span>
+        <span id="agentTask">-</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">ความคืบหน้า <span id="agentProgressText">0%</span></span>
+        <div class="progress-track">
+          <div class="progress-fill" id="agentProgressFill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">อัปเดตล่าสุด</span>
+        <span id="agentUpdatedAt">-</span>
+      </div>
+
+      <p class="small-note">สถานะจะอัปเดตอัตโนมัติจาก PaenLaen's Office Database</p>
+    </section>
+  </div>
+
+  <script>
+    /*
+      จุดเชื่อม Google Apps Script ของคุณ
+      หากภายหลัง Deploy ใหม่แล้ว URL เปลี่ยน ให้เปลี่ยนแค่บรรทัดนี้
+    */
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbxSUzPtHByx6hMhv1BXqHwZcTTgldom4LBz7JtzZvFWpKSMfELrJ0SB4uUzOxUB6_wH/exec";
+
+    const canvas = document.getElementById("officeCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+
+    const W = canvas.width;
+    const H = canvas.height;
+
+    const state = {
+      agents: [],
+      office: {
+        name: "PaenLaen's Office",
+        tagline: "A tiny kawaii workspace, always in motion.",
+        refresh_seconds: 20,
+        show_speech_bubbles: true
+      },
+      lastUpdated: "",
+      selectedAgent: null,
+      time: 0
+    };
+
+    const locations = {
+      desk_1: { x: 220, y: 282, direction: "up" },
+      desk_2: { x: 480, y: 282, direction: "up" },
+      desk_3: { x: 735, y: 282, direction: "up" },
+      coffee: { x: 125, y: 486, direction: "right" },
+      meeting: { x: 715, y: 486, direction: "up" },
+      chill: { x: 388, y: 500, direction: "down" }
+    };
+
+    const palettes = {
+      pink: { shirt: "#ef91af", hair: "#744c52", accent: "#ffd4e0", emoji: "🌸" },
+      blue: { shirt: "#7cbce8", hair: "#4c596c", accent: "#c8eeff", emoji: "🦆" },
+      yellow: { shirt: "#f4c957", hair: "#7c5b42", accent: "#ffe8a2", emoji: "🍋" },
+      mint: { shirt: "#75cdb5", hair: "#506b62", accent: "#c7f2e5", emoji: "🌿" }
+    };
+
+    const statusLabels = {
+      working: "กำลังทำงาน",
+      coffee: "พักดื่มกาแฟ",
+      meeting: "อยู่ในที่ประชุม",
+      idle: "กำลังพัก",
+      blocked: "งานติดขัด"
+    };
+
+    const statusBubbles = {
+      working: ["กำลังโฟกัส!", "typing...", "almost there!"],
+      coffee: ["Matcha break!", "เติมพลังแป๊บ", "กาแฟหอมมาก"],
+      meeting: ["brainstorm!", "คุยงานกัน", "idea time!"],
+      idle: ["กำลังคิดอยู่…", "พักสายตา", "ดูหนังสือแป๊บ"],
+      blocked: ["ขอความช่วยเหลือ", "อืมมม…", "ติดตรงไหนนะ?"]
+    };
+
+    function normalizeStatus(status) {
+      return ["working", "coffee", "meeting", "idle", "blocked"].includes(status)
+        ? status
+        : "idle";
+    }
+
+    function targetFor(agent) {
+      const status = normalizeStatus(agent.status);
+
+      if (status === "working" || status === "blocked") {
+        return locations[agent.desk_id] || locations.desk_1;
+      }
+
+      if (status === "coffee") return locations.coffee;
+      if (status === "meeting") return locations.meeting;
+      return locations.chill;
+    }
+
+    function prepareAgents(apiAgents) {
+      const fallbackPositions = [
+        { x: 220, y: 380 },
+        { x: 480, y: 390 },
+        { x: 735, y: 385 }
+      ];
+
+      state.agents = apiAgents.map((agent, index) => {
+        const previous = state.agents.find(item => item.id === agent.id);
+        const fallback = fallbackPositions[index % fallbackPositions.length];
+        const target = targetFor(agent);
+
+        return {
+          ...agent,
+          status: normalizeStatus(agent.status),
+          progress: Math.max(0, Math.min(100, Number(agent.progress) || 0)),
+          x: previous ? previous.x : fallback.x,
+          y: previous ? previous.y : fallback.y,
+          targetX: target.x,
+          targetY: target.y,
+          walkSeed: previous ? previous.walkSeed : Math.random() * 10,
+          bubbleSeed: previous ? previous.bubbleSeed : Math.floor(Math.random() * 100),
+          direction: target.direction || "down"
+        };
+      });
+    }
+
+    function loadOfficeData() {
+      const callbackName = `officeCallback_${Date.now()}`;
+
+      window[callbackName] = function(data) {
+        try {
+          if (!data || !data.ok) {
+            throw new Error(data?.error || "ไม่สามารถอ่านข้อมูลได้");
+          }
+
+          state.office = { ...state.office, ...data.office };
+          state.lastUpdated = data.updated_at || "";
+          prepareAgents(data.agents || []);
+          updateInterface();
+          setConnection("online", "เชื่อมต่อแล้ว");
+        } catch (error) {
+          setConnection("error", "เชื่อมต่อไม่สำเร็จ");
+          console.error(error);
+        } finally {
+          script.remove();
+          delete window[callbackName];
+        }
+      };
+
+      const script = document.createElement("script");
+      script.src =
+        `${API_URL}?action=office&callback=${callbackName}&_=${Date.now()}`;
+      script.onerror = function() {
+        setConnection("error", "เชื่อมต่อไม่สำเร็จ");
+        script.remove();
+        delete window[callbackName];
+      };
+
+      document.body.appendChild(script);
+    }
+
+    function setConnection(type, text) {
+      const element = document.getElementById("connection");
+      element.className = `connection ${type}`;
+      document.getElementById("connectionText").textContent = text;
+    }
+
+    function updateInterface() {
+      document.getElementById("officeName").textContent = state.office.name;
+      document.getElementById("tagline").textContent = state.office.tagline;
+
+      const working = state.agents.filter(agent => agent.status === "working").length;
+      const onBreak = state.agents.filter(agent =>
+        ["coffee", "idle"].includes(agent.status)
+      ).length;
+
+      const average = state.agents.length
+        ? Math.round(
+            state.agents.reduce((sum, agent) => sum + agent.progress, 0) /
+              state.agents.length
+          )
+        : 0;
+
+      document.getElementById("workingCount").textContent = working;
+      document.getElementById("breakCount").textContent = onBreak;
+      document.getElementById("progressCount").textContent = `${average}%`;
+    }
+
+    function rect(x, y, w, h, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+    }
+
+    function text(textValue, x, y, size, color = "#5e4d57", align = "left") {
+      ctx.fillStyle = color;
+      ctx.font = `bold ${size}px "Trebuchet MS", Tahoma, sans-serif`;
+      ctx.textAlign = align;
+      ctx.textBaseline = "middle";
+      ctx.fillText(textValue, x, y);
+    }
+
+    function roundRect(x, y, w, h, radius, fill, stroke) {
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, radius);
+      if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fill();
+      }
+      if (stroke) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
+
+    function drawPlant(x, y) {
+      rect(x + 8, y + 24, 19, 16, "#cb8a65");
+      rect(x + 10, y + 24, 15, 4, "#e6af7b");
+      rect(x + 4, y + 8, 11, 18, "#70b894");
+      rect(x + 17, y + 3, 12, 23, "#82cda4");
+      rect(x + 26, y + 9, 10, 17, "#66a985");
+      rect(x + 8, y + 5, 8, 8, "#9ce0b0");
+    }
+
+    function drawDesk(x, y, label, accent) {
+      rect(x - 70, y - 28, 140, 60, "#a87359");
+      rect(x - 66, y - 24, 132, 48, "#dba77f");
+      rect(x - 70, y + 31, 12, 22, "#895a48");
+      rect(x + 58, y + 31, 12, 22, "#895a48");
+
+      rect(x - 31, y - 43, 58, 29, "#735d67");
+      rect(x - 27, y - 39, 50, 21, accent);
+      rect(x - 6, y - 14, 12, 8, "#725a55");
+      rect(x - 22, y - 6, 44, 5, "#80645c");
+
+      rect(x + 38, y - 18, 11, 11, "#fff9dc");
+      rect(x + 40, y - 21, 7, 4, "#fff9dc");
+
+      roundRect(x - 50, y + 38, 100, 20, 5, "#f6e9dc", "#ddc6bb");
+      text(label, x, y + 48, 9, "#8b6570", "center");
+    }
+
+    function drawCoffeeCorner() {
+      roundRect(37, 414, 190, 164, 15, "#f8e8d3", "#e7cdb8");
+      text("COFFEE CORNER", 132, 432, 11, "#9d6c62", "center");
+
+      rect(55, 452, 49, 82, "#e2b890");
+      rect(61, 459, 37, 27, "#6c5f60");
+      rect(65, 462, 29, 20, "#bfe5d3");
+      rect(65, 500, 29, 10, "#a87862");
+      rect(110, 480, 30, 24, "#fff0ca");
+      rect(114, 475, 21, 8, "#fff0ca");
+
+      roundRect(148, 470, 55, 23, 7, "#f5d6b7", "#d8aa8f");
+      rect(170, 492, 10, 38, "#b77e63");
+      rect(153, 526, 43, 8, "#c58b6d");
+
+      drawPlant(188, 438);
+    }
+
+    function drawMeetingRoom() {
+      roundRect(563, 404, 350, 174, 15, "#e8e4fa", "#c8bce1");
+      text("MEETING ROOM", 738, 423, 11, "#75668f", "center");
+
+      rect(594, 438, 63, 40, "#ffffff");
+      rect(600, 444, 51, 28, "#f3d98b");
+      rect(610, 450, 29, 4, "#d2938b");
+
+      roundRect(670, 469, 160, 47, 18, "#b98466", "#875b4d");
+      roundRect(680, 477, 140, 31, 13, "#dfad82");
+      rect(689, 448, 28, 18, "#9cc6dd");
+      rect(782, 448, 28, 18, "#e9a4ba");
+
+      rect(682, 524, 20, 27, "#a77261");
+      rect(798, 524, 20, 27, "#a77261");
+      drawPlant(855, 505);
+    }
+
+    function drawChillCorner() {
+      roundRect(275, 434, 230, 144, 15, "#e1f0e9", "#b9d9ca");
+      text("CHILL CORNER", 390, 453, 11, "#628979", "center");
+
+      roundRect(302, 493, 89, 39, 10, "#eeb7c6", "#c98a9d");
+      rect(310, 486, 25, 12, "#ffd7e3");
+      rect(351, 486, 25, 12, "#ffd7e3");
+      rect(310, 529, 10, 16, "#a36f6d");
+      rect(371, 529, 10, 16, "#a36f6d");
+
+      rect(417, 477, 58, 59, "#b78569");
+      rect(423, 483, 46, 47, "#f5dcc2");
+      rect(427, 490, 7, 31, "#ef9eb2");
+      rect(437, 490, 7, 31, "#8dbddd");
+      rect(447, 490, 7, 31, "#f3c95e");
+      drawPlant(475, 500);
+    }
+
+    function drawTaskBoard() {
+      roundRect(337, 63, 286, 73, 9, "#b98765", "#895d4c");
+      rect(346, 72, 268, 55, "#f8e7c4");
+      text("TODAY'S TINY WINS", 480, 84, 11, "#956551", "center");
+
+      const completed = state.agents
+        .filter(agent => agent.progress >= 70)
+        .slice(0, 4);
+
+      completed.forEach((agent, index) => {
+        const colors = ["#f8b8c8", "#b6e5d1", "#ffe38d", "#d8c7f0"];
+        roundRect(358 + index * 62, 95, 54, 23, 3, colors[index], "#e0bda8");
+        text(agent.name || "task", 385 + index * 62, 106, 8, "#76545a", "center");
+      });
+    }
+
+    function drawWindows() {
+      for (let i = 0; i < 3; i++) {
+        const x = 60 + i * 150;
+        roundRect(x, 56, 102, 79, 7, "#d5edf5", "#a4cbd9");
+        rect(x + 8, 64, 86, 63, "#c7e9f4");
+        rect(x + 49, 64, 4, 63, "#a4cbd9");
+        rect(x + 8, 93, 86, 4, "#a4cbd9");
+        rect(x + 18, 72, 9, 9, "#fffaf1");
+      }
+    }
+
+    function drawRoom() {
+      rect(0, 0, W, H, "#fff5e7");
+
+      // พื้นไม้
+      for (let y = 150; y < H; y += 34) {
+        rect(0, y, W, 1, "#efdcca");
+      }
+
+      for (let x = 0; x < W; x += 60) {
+        rect(x, 150, 1, H - 150, "rgba(217, 185, 162, 0.35)");
+      }
+
+      // ผนัง
+      rect(0, 0, W, 151, "#f8deda");
+      rect(0, 145, W, 8, "#c98c78");
+      drawWindows();
+
+      // ป้าย
+      roundRect(690, 62, 195, 57, 10, "#ffedf1", "#edb6c6");
+      text("PAENLAEN'S", 788, 82, 13, "#9b6474", "center");
+      text("TINY OFFICE ✦", 788, 101, 11, "#aa7881", "center");
+
+      drawTaskBoard();
+
+      // พรม
+      roundRect(127, 215, 712, 152, 25, "#f7eee1", "#ead6c6");
+
+      // โต๊ะทำงาน
+      drawDesk(220, 240, "MOMO", "#f7b3c9");
+      drawDesk(480, 240, "KAITO", "#a8d6eb");
+      drawDesk(735, 240, "YUZU", "#f4d77e");
+
+      // ของตกแต่ง
+      drawPlant(54, 175);
+      drawPlant(870, 170);
+      drawCoffeeCorner();
+      drawChillCorner();
+      drawMeetingRoom();
+
+      // กลีบซากุระ
+      for (let i = 0; i < 13; i++) {
+        const x = (i * 83 + state.time * (6 + (i % 3))) % (W + 30) - 15;
+        const y = 155 + ((i * 59 + state.time * 4) % 380);
+        rect(x, y, 4, 3, i % 2 ? "#f5b8ca" : "#ffd3df");
+      }
+    }
+
+    function drawSpeechBubble(agent) {
+      if (!state.office.show_speech_bubbles) return;
+
+      const cycle = Math.floor((state.time + agent.bubbleSeed) / 6);
+      if (cycle % 3 !== 0) return;
+
+      const messages = statusBubbles[agent.status] || statusBubbles.idle;
+      const message = messages[cycle % messages.length];
+      const bubbleWidth = Math.max(66, message.length * 7 + 18);
+
+      roundRect(
+        agent.x - bubbleWidth / 2,
+        agent.y - 64,
+        bubbleWidth,
+        24,
+        8,
+        "#fffdf8",
+        "#e8d7ce"
+      );
+
+      ctx.beginPath();
+      ctx.moveTo(agent.x - 5, agent.y - 40);
+      ctx.lineTo(agent.x + 3, agent.y - 40);
+      ctx.lineTo(agent.x - 1, agent.y - 34);
+      ctx.closePath();
+      ctx.fillStyle = "#fffdf8";
+      ctx.fill();
+
+      text(message, agent.x, agent.y - 52, 9, "#806974", "center");
+    }
+
+    function drawAgent(agent) {
+      const palette = palettes[agent.color] || palettes.pink;
+      const moving =
+        Math.abs(agent.targetX - agent.x) > 1 || Math.abs(agent.targetY - agent.y) > 1;
+
+      const bob = moving ? Math.sin(state.time * 9 + agent.walkSeed) * 2 : 0;
+      const x = Math.round(agent.x);
+      const y = Math.round(agent.y + bob);
+
+      // เงา
+      roundRect(x - 13, y + 14, 26, 7, 5, "rgba(108, 80, 74, 0.16)");
+
+      // ขา
+      rect(x - 9, y + 9, 6, 10, "#644f50");
+      rect(x + 3, y + 9, 6, 10, "#644f50");
+      rect(x - 11, y + 17, 9, 4, "#4e4146");
+      rect(x + 3, y + 17, 9, 4, "#4e4146");
+
+      // ตัว
+      rect(x - 12, y - 3, 24, 16, palette.shirt);
+      rect(x - 9, y, 18, 11, palette.accent);
+
+      // แขน
+      rect(x - 16, y - 1, 5, 11, "#ffd1b2");
+      rect(x + 11, y - 1, 5, 11, "#ffd1b2");
+
+      // หัวและผม
+      rect(x - 11, y - 22, 22, 20, "#ffd1b2");
+      rect(x - 12, y - 26, 24, 9, palette.hair);
+      rect(x - 13, y - 22, 5, 12, palette.hair);
+      rect(x + 8, y - 22, 5, 12, palette.hair);
+
+      // หน้า
+      rect(x - 6, y - 13, 2, 2, "#5e4d57");
+      rect(x + 4, y - 13, 2, 2, "#5e4d57");
+      rect(x - 2, y - 8, 4, 2, "#df8293");
+
+      // จุดแสดงสถานะ
+      const icon = {
+        working: "⌨",
+        coffee: "☕",
+        meeting: "✦",
+        idle: "z",
+        blocked: "?"
+      }[agent.status] || "·";
+
+      roundRect(x + 12, y - 29, 17, 17, 7, "#fffdf8", "#ead7ce");
+      text(icon, x + 20, y - 20, 10, "#7f6872", "center");
+
+      // ป้ายชื่อ
+      roundRect(x - 29, y + 27, 58, 16, 6, "rgba(255, 253, 248, 0.9)", "#ead9ce");
+      text(agent.name || "Agent", x, y + 35, 8, "#715d66", "center");
+
+      drawSpeechBubble(agent);
+    }
+
+    function updateAgents(delta) {
+      state.agents.forEach(agent => {
+        const target = targetFor(agent);
+        agent.targetX = target.x;
+        agent.targetY = target.y;
+
+        const dx = agent.targetX - agent.x;
+        const dy = agent.targetY - agent.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (distance > 1) {
+          const speed = 46;
+          const move = Math.min(distance, speed * delta);
+          agent.x += (dx / distance) * move;
+          agent.y += (dy / distance) * move;
+
+          if (Math.abs(dx) > Math.abs(dy)) {
+            agent.direction = dx > 0 ? "right" : "left";
+          } else {
+            agent.direction = dy > 0 ? "down" : "up";
+          }
+        }
+      });
+    }
+
+    let lastFrame = performance.now();
+
+    function render(now) {
+      const delta = Math.min((now - lastFrame) / 1000, 0.05);
+      lastFrame = now;
+      state.time += delta;
+
+      updateAgents(delta);
+      drawRoom();
+
+      [...state.agents]
+        .sort((a, b) => a.y - b.y)
+        .forEach(drawAgent);
+
+      requestAnimationFrame(render);
+    }
+
+    function selectAgent(agent) {
+      state.selectedAgent = agent;
+      const palette = palettes[agent.color] || palettes.pink;
+
+      document.getElementById("agentAvatar").textContent = palette.emoji;
+      document.getElementById("agentAvatar").style.setProperty(
+        "--avatar-color",
+        palette.accent
+      );
+
+      document.getElementById("agentName").textContent = agent.name || "AI Agent";
+      document.getElementById("agentRole").textContent = agent.role || "-";
+      document.getElementById("agentStatus").textContent =
+        statusLabels[agent.status] || "กำลังพัก";
+      document.getElementById("agentTask").textContent =
+        agent.task || "ยังไม่มีงานที่ระบุ";
+      document.getElementById("agentProgressText").textContent =
+        `${agent.progress}%`;
+      document.getElementById("agentProgressFill").style.width =
+        `${agent.progress}%`;
+      document.getElementById("agentUpdatedAt").textContent =
+        agent.updated_at || state.lastUpdated || "-";
+
+      document.getElementById("modalBackdrop").classList.add("show");
+    }
+
+    canvas.addEventListener("click", event => {
+      const bounds = canvas.getBoundingClientRect();
+      const x = ((event.clientX - bounds.left) / bounds.width) * W;
+      const y = ((event.clientY - bounds.top) / bounds.height) * H;
+
+      const clicked = [...state.agents]
+        .reverse()
+        .find(agent => Math.hypot(x - agent.x, y - agent.y) < 32);
+
+      if (clicked) selectAgent(clicked);
+    });
+
+    document.getElementById("closeModal").addEventListener("click", () => {
+      document.getElementById("modalBackdrop").classList.remove("show");
+    });
+
+    document.getElementById("modalBackdrop").addEventListener("click", event => {
+      if (event.target.id === "modalBackdrop") {
+        document.getElementById("modalBackdrop").classList.remove("show");
+      }
+    });
+
+    // เริ่มต้นฉากและเชื่อมข้อมูล
+    requestAnimationFrame(render);
+    loadOfficeData();
+
+    // ดึงข้อมูลใหม่ตามค่าที่ตั้งใน office_config (ค่าเริ่มต้น 20 วินาที)
+    setInterval(() => {
+      loadOfficeData();
+    }, 20000);
+  </script>
+</body>
+</html>
